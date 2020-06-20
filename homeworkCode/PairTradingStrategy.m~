@@ -78,7 +78,7 @@ classdef PairTradingStrategy < mclasses.strategy.LFBaseStrategy
             [~,orderCount] = size(orderList);
             delayList = ones(1,orderCount);
             obj.cutLossRecord = obj.cutLossRecord-1;
-            if (currDate==datenum(2017, 4,27 ))
+            if (currDate==datenum(2020, 2,1 ))
                 xlswrite('winCounter.xls',obj.winCounter);
                 xlswrite('lossCounter.xls',obj.lossCounter);
                 xlswrite('cutLossCounter.xls',obj.cutLossCounter);
@@ -115,11 +115,11 @@ classdef PairTradingStrategy < mclasses.strategy.LFBaseStrategy
                     sign=true;                  
                 end
                 
-                if (currentVal(x1, x2)<1)&&(obj.currPairList{1,i}.PnL>-0.05)% 协助不满足，平仓
-                    sign = true;
-                    obj.cutLossRecord(x1, x2) =20;%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-                    obj.noValidation(x1, x2) =obj.noValidation(x1, x2)+ 1;
-                end
+%                 if (currentVal(x1, x2)<1)&&(obj.currPairList{1,i}.PnL>-0.05)% 协助不满足，平仓
+%                     sign = true;
+%                     obj.cutLossRecord(x1, x2) =20;%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%                     obj.noValidation(x1, x2) =obj.noValidation(x1, x2)+ 1;
+%                 end
                 
                 if ( currentZscore(x1,x2)*obj.currPairList{1,i}.openZScore<0 )&&(currentVal(x1, x2)>0)%止盈            %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%;
                     obj.stopWinCounter(x1, x2) = obj.stopWinCounter(x1, x2)+ 1;
@@ -207,15 +207,16 @@ classdef PairTradingStrategy < mclasses.strategy.LFBaseStrategy
             zscoreIndex = find(ismember(obj.signals.propertyNameList, 'zScore'));
             betaIndex = find(ismember(obj.signals.propertyNameList, 'beta'));
             alphaIndex = find(ismember(obj.signals.propertyNameList, 'alpha'));
-            o
+            openIndex =  find(ismember(obj.signals.propertyNameList, 'open'));
+            
             % 分别找到不同pair 对应的expectedReturn，validity，zscore，返回的结果都是的二维矩阵
             currentExpect = obj.signals.signalParameters(:,:,end,1,1,returnIndex);
-            currentVal = obj.signals.signalParameters(:,:,end,1,1,validityIndex);
-            currentZscore =  obj.signals.signalParameters(:,:,end,1,1,zscoreIndex);     
- 
+            currentVal = obj.signals.signalParameters(:,:,end,1,1,validityIndex);    
+            currentOpen =  obj.signals.signalParameters(:,:,end,1,1,openIndex);
+            
             %因为没有通过检验pair对应的结果都是0，这里我们用每个pair的validity，乘是否zscore大于2的逻辑判断，得到符合标准的交易pair，
             %然后这个矩阵乘以expectReturn，得到满足交易标准的pair的expectReturn
-            avaliableExpect = currentVal.*currentExpect.*((currentZscore>2)+(currentZscore<-2)).*(~obj.existPair ).*(obj.cutLossRecord<0);%.*tril(currentExpect);%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+            avaliableExpect = currentVal.*currentExpect.*currentOpen.*(~obj.existPair ).*(obj.cutLossRecord<0);%.*tril(currentExpect);%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
             longwindTicker={};
             longQuant = [];
             shortwindTicker = {};
@@ -328,11 +329,11 @@ classdef PairTradingStrategy < mclasses.strategy.LFBaseStrategy
 
             cashFor1 = (1*fwdPrice1)/(1*fwdPrice1+abs(newStruct.beta)*fwdPrice2)*everyCash;%计算出资金分配,比例为1：beta
             cashFor2 = (abs(newStruct.beta)*fwdPrice2)/(1*fwdPrice1+abs(newStruct.beta)*fwdPrice2)*everyCash;
-
-            costPrice1 = aggregatedDataStruct.stock.properties.open(dateLoc+1, newStruct.stock1);
-            costPrice2 = aggregatedDataStruct.stock.properties.open(dateLoc+1, newStruct.stock2);%用第二天的开盘价格来计算交易成本
-            realstock1Position = floor(cashFor1/costPrice1/100)*100*newStruct.stock1Position;
-            realstock2Position = floor(cashFor2/costPrice2/100)*100*newStruct.stock2Position;%交易完成后的头寸
+% 
+%             costPrice1 = aggregatedDataStruct.stock.properties.open(dateLoc+1, newStruct.stock1);
+%             costPrice2 = aggregatedDataStruct.stock.properties.open(dateLoc+1, newStruct.stock2);%用第二天的开盘价格来计算交易成本
+%             realstock1Position = floor(cashFor1/costPrice1/100)*100*newStruct.stock1Position;
+%             realstock2Position = floor(cashFor2/costPrice2/100)*100*newStruct.stock2Position;%交易完成后的头寸
 
             newStruct.stock1Position = floor(cashFor1/realPrice1/100)*100*newStruct.stock1Position;
             newStruct.stock2Position = floor(cashFor2/realPrice2/100)*100*newStruct.stock2Position;%订单头寸

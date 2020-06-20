@@ -133,7 +133,8 @@ classdef PairTradingStrategy < mclasses.strategy.LFBaseStrategy
                         obj.winCounter(x1, x2) =obj.winCounter(x1, x2)+ 1;
                     end
                     
-                    obj.existPair(x1,x2)=0; %平仓后把这个位置设定为0
+                    obj.existPair(x1,:)=0; %平仓后把这个位置设定为0
+                    obj.existPair( : ,x2)=0; %平仓后把这个位置设定为0
                     stock1=obj.currPairList{1,i}.stock1;
                     stock2=obj.currPairList{1,i}.stock2;
                     windTickers1 = aggregatedDataStruct.stock.description.tickers.windTicker(stock1);
@@ -315,7 +316,8 @@ classdef PairTradingStrategy < mclasses.strategy.LFBaseStrategy
             x1 = find(ismember(obj.signals.stockLocation, newStruct.stock1));
             x2 = find(ismember(obj.signals.stockLocation, newStruct.stock2));
             obj.openCounter(x1,x2)=obj.openCounter(x1,x2)+1;
-            obj.existPair(x1,x2)=1;
+            obj.existPair(x1,:)=1;
+            obj.existPair(:,x2)=1;
             windTickers1 = aggregatedDataStruct.stock.description.tickers.windTicker(newStruct.stock1);
             windTickers2 = aggregatedDataStruct.stock.description.tickers.windTicker(newStruct.stock2);%wind股票代码
 
@@ -329,11 +331,11 @@ classdef PairTradingStrategy < mclasses.strategy.LFBaseStrategy
 
             cashFor1 = (1*fwdPrice1)/(1*fwdPrice1+abs(newStruct.beta)*fwdPrice2)*everyCash;%计算出资金分配,比例为1：beta
             cashFor2 = (abs(newStruct.beta)*fwdPrice2)/(1*fwdPrice1+abs(newStruct.beta)*fwdPrice2)*everyCash;
-
-            costPrice1 = aggregatedDataStruct.stock.properties.open(dateLoc+1, newStruct.stock1);
-            costPrice2 = aggregatedDataStruct.stock.properties.open(dateLoc+1, newStruct.stock2);%用第二天的开盘价格来计算交易成本
-            realstock1Position = floor(cashFor1/costPrice1/100)*100*newStruct.stock1Position;
-            realstock2Position = floor(cashFor2/costPrice2/100)*100*newStruct.stock2Position;%交易完成后的头寸
+% 
+%             costPrice1 = aggregatedDataStruct.stock.properties.open(dateLoc+1, newStruct.stock1);
+%             costPrice2 = aggregatedDataStruct.stock.properties.open(dateLoc+1, newStruct.stock2);%用第二天的开盘价格来计算交易成本
+%             realstock1Position = floor(cashFor1/costPrice1/100)*100*newStruct.stock1Position;
+%             realstock2Position = floor(cashFor2/costPrice2/100)*100*newStruct.stock2Position;%交易完成后的头寸
 
             newStruct.stock1Position = floor(cashFor1/realPrice1/100)*100*newStruct.stock1Position;
             newStruct.stock2Position = floor(cashFor2/realPrice2/100)*100*newStruct.stock2Position;%订单头寸
@@ -373,7 +375,8 @@ classdef PairTradingStrategy < mclasses.strategy.LFBaseStrategy
         function  [longwindTicker,longQuant,shortwindTicker,shortQuant] = closePair(obj,closeStruct,longwindTicker,longQuant,shortwindTicker,shortQuant,currDate)
              x1 = find(ismember(obj.signals.stockLocation, closeStruct.stock1));
              x2 = find(ismember(obj.signals.stockLocation, closeStruct.stock2));
-             obj.existPair(x1,x2)=0;
+             obj.existPair(x1,:)=0;
+             obj.existPair(:,x2)=0;
              aggregatedDataStruct = obj.marketData.aggregatedDataStruct;
 
             % 沈廷威2020/06/05:每次平仓时都要对平仓计数器winCounter或lossCounter进行+1操作，请判断决定平仓时，第二天的卖出价格相对于开仓成本到底是收益还是损失。此处仅为统计使用，故可使用未来数据
