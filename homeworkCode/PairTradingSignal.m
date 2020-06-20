@@ -1,5 +1,5 @@
 classdef PairTradingSignal < handle
-    
+    %test
     properties(Access = public)
         startDate;
         %startDateLocation is the location of startDate in dateList
