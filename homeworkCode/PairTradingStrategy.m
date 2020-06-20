@@ -208,6 +208,7 @@ classdef PairTradingStrategy < mclasses.strategy.LFBaseStrategy
             zscoreIndex = find(ismember(obj.signals.propertyNameList, 'zScore'));
             betaIndex = find(ismember(obj.signals.propertyNameList, 'beta'));
             alphaIndex = find(ismember(obj.signals.propertyNameList, 'alpha'));
+            sigmaIndex= find(ismember(obj.signals.propertyNameList, 'sigma'));
             openIndex =  find(ismember(obj.signals.propertyNameList, 'open'));
             
             % 分别找到不同pair 对应的expectedReturn，validity，zscore，返回的结果都是的二维矩阵
@@ -245,9 +246,9 @@ classdef PairTradingStrategy < mclasses.strategy.LFBaseStrategy
                     openDate = obj.signals.dateList{dateLoc+1,1};%第二天开盘开仓
                     beta = obj.signals.signalParameters(x,y,end,1,1,betaIndex);
                     alpha = obj.signals.signalParameters(x,y,end,1,1,alphaIndex);
-                    
+                    sigma = obj.signals.signalParameters(x,y,end,1,1,sigmaIndex);
                     newStruct = struct('stock1',stock1,'stock2',stock2,'stock1Position',stock1Position,'stock2Position',...
-                    stock2Position,'openCost',openCost,'openZScore',openZScore,'PnL',PnL,'openDate',openDate,'expectReturn',maxData, 'beta',beta,'alpha',alpha );
+                    stock2Position,'openCost',openCost,'openZScore',openZScore,'PnL',PnL,'openDate',openDate,'expectReturn',maxData, 'beta',beta,'alpha',alpha ,'sigma',sigma);
                     obj.orderSort();%先排序，再比较，expectReturn从小到大排列
                     % 沈廷威2020/06/04:这个语法不太对啊，orderSort()只能由这个类的对象来调用，不能用currPairList直接调用，他就是一个成员变量，一个cell，应该是obj.orderSort()吧
                     % 李方闻2020/06/06:已经按照提示修改
