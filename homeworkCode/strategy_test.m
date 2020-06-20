@@ -6,7 +6,7 @@ director = mclasses.director.HomeworkDirector([], 'homework_1');
 %% register strategy
 % parameters for director
 directorParameters = [];
-initParameters.startDate = datenum(2014, 5, 15);
+initParameters.startDate = datenum(2015, 5, 15);
 initParameters.endDate = datenum(2015, 5, 21);
 director.initialize(initParameters);
 
@@ -17,7 +17,7 @@ strategyParameters = mclasses.strategy.longOnly.configParameter(PairTradingStrat
 PairTradingStrategyInstance.initialize(strategyParameters);
 
 %% run strategies
-load('/Users/lifangwen/Desktop/module4/software/homeworkCode/sharedData/mat/marketInfo_securities_china.mat')
+%load('/Users/lifangwen/Desktop/module4/software/homeworkCode/sharedData/mat/marketInfo_securities_china.mat')
 director.reset();
 director.set_tradeDates(aggregatedDataStruct.sharedInformation.allDates);
 director.run();
