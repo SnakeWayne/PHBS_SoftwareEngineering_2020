@@ -115,11 +115,11 @@ classdef PairTradingStrategy < mclasses.strategy.LFBaseStrategy
                     sign=true;                  
                 end
                 
-                if (currentVal(x1, x2)<1)&&(obj.currPairList{1,i}.PnL>-0.05)% 协助不满足，平仓
-                    sign = true;
-                    obj.cutLossRecord(x1, x2) =20;%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-                    obj.noValidation(x1, x2) =obj.noValidation(x1, x2)+ 1;
-                end
+%                 if (currentVal(x1, x2)<1)&&(obj.currPairList{1,i}.PnL>-0.05)% 协助不满足，平仓
+%                     sign = true;
+%                     obj.cutLossRecord(x1, x2) =20;%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%                     obj.noValidation(x1, x2) =obj.noValidation(x1, x2)+ 1;
+%                 end
                 
                 if ( currentZscore(x1,x2)*obj.currPairList{1,i}.openZScore<0 )&&(currentVal(x1, x2)>0)%止盈            %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%;
                     obj.stopWinCounter(x1, x2) = obj.stopWinCounter(x1, x2)+ 1;
