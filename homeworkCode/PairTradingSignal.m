@@ -1,4 +1,5 @@
 %在propertylist里，第六个变为sigma，方便调用；加入第九个变量open，判定是否到达开仓条件
+%test
 classdef PairTradingSignal < handle
     
     properties(Access = public)
