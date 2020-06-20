@@ -331,11 +331,11 @@ classdef PairTradingStrategy < mclasses.strategy.LFBaseStrategy
 
             cashFor1 = (1*fwdPrice1)/(1*fwdPrice1+abs(newStruct.beta)*fwdPrice2)*everyCash;%计算出资金分配,比例为1：beta
             cashFor2 = (abs(newStruct.beta)*fwdPrice2)/(1*fwdPrice1+abs(newStruct.beta)*fwdPrice2)*everyCash;
-% 
-%             costPrice1 = aggregatedDataStruct.stock.properties.open(dateLoc+1, newStruct.stock1);
-%             costPrice2 = aggregatedDataStruct.stock.properties.open(dateLoc+1, newStruct.stock2);%用第二天的开盘价格来计算交易成本
-%             realstock1Position = floor(cashFor1/costPrice1/100)*100*newStruct.stock1Position;
-%             realstock2Position = floor(cashFor2/costPrice2/100)*100*newStruct.stock2Position;%交易完成后的头寸
+ 
+             costPrice1 = aggregatedDataStruct.stock.properties.open(dateLoc+1, newStruct.stock1);
+             costPrice2 = aggregatedDataStruct.stock.properties.open(dateLoc+1, newStruct.stock2);%用第二天的开盘价格来计算交易成本
+             realstock1Position = floor(cashFor1/costPrice1/100)*100*newStruct.stock1Position;
+             realstock2Position = floor(cashFor2/costPrice2/100)*100*newStruct.stock2Position;%交易完成后的头寸
 
             newStruct.stock1Position = floor(cashFor1/realPrice1/100)*100*newStruct.stock1Position;
             newStruct.stock2Position = floor(cashFor2/realPrice2/100)*100*newStruct.stock2Position;%订单头寸
