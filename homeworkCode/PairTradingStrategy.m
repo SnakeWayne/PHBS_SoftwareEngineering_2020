@@ -121,15 +121,15 @@ classdef PairTradingStrategy < mclasses.strategy.LFBaseStrategy
                     sign=true;                  
                 end
                 
-                if (currentVal(x1, x2)<1)&&(obj.currPairList{1,i}.PnL>-0.05)% 协助不满足，平仓
-                    if obj.plotCounter>0
-                        obj.plotPair(obj.currPairList{1,i},'协整不满足',currDate)
-                        obj.plotCounter = obj.plotCounter-1;
-                    end
-                    sign = true;
-                    obj.cutLossRecord(x1, x2) =20;%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-                    obj.noValidation(x1, x2) =obj.noValidation(x1, x2)+ 1;
-                end
+%                 if (currentVal(x1, x2)<1)&&(obj.currPairList{1,i}.PnL>-0.05)% 协助不满足，平仓
+%                     if obj.plotCounter>0
+%                         obj.plotPair(obj.currPairList{1,i},'协整不满足',currDate)
+%                         obj.plotCounter = obj.plotCounter-1;
+%                     end
+%                     sign = true;
+%                     obj.cutLossRecord(x1, x2) =20;%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%                     obj.noValidation(x1, x2) =obj.noValidation(x1, x2)+ 1;
+%                 end
                 
                 if ( currentZscore(x1,x2)*obj.currPairList{1,i}.openZScore<0 )&&(currentVal(x1, x2)>0)%止盈            %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%;
                     if obj.plotCounter>0
@@ -425,8 +425,18 @@ classdef PairTradingStrategy < mclasses.strategy.LFBaseStrategy
         end
         
         function plotPair(obj,pairStruct,closeCause,endDate)
-           stock1 = pairStruct.stock1; %股票index
-           stock2 = pairStruct.stock2;
+           stock1 = find(ismember(obj.signals.stockLocation,pairStruct.stock1)); %股票index
+           stock2 = find(ismember(obj.signals.stockLocation,pairStruct.stock2));
+           aggregatedDataStruct = obj.marketData.aggregatedDataStruct;
+           windTickers1 = aggregatedDataStruct.stock.description.tickers.windTicker(pairStruct.stock1);
+           windTickers2 = aggregatedDataStruct.stock.description.tickers.windTicker(pairStruct.stock2);
+           windName1 = aggregatedDataStruct.stock.description.tickers.shortName(pairStruct.stock1);
+           windName2 = aggregatedDataStruct.stock.description.tickers.shortName(pairStruct.stock2);
+
+           stockTicker1 =  windTickers1{1}; %stock1交易代码
+           stockTicker2 =  windTickers2{1}; %stock2交易代码
+           stockName1 = windName1{1}; %stock1简称
+           stockName2 = windName2{1}; %stock2简称
 
            startDate=pairStruct.openDate;
 
@@ -440,9 +450,11 @@ classdef PairTradingStrategy < mclasses.strategy.LFBaseStrategy
 
            extend_length=3; %startDate与endDate往前后延长几天，方便画图
            startDateIndex = find( [obj.signals.dateList{:,1}]== startDate);
-           startDateIndex_extend = startDateIndex-extend_length;
+           startDateIndex_extend = find( [obj.signals.dateList{:,1}]== (startDate-extend_length));
            endDateIndex = find( [obj.signals.dateList{:,1}]== endDate);
-           endDateIndex_extend = endDateIndex+extend_length;
+           endDateIndex_extend = find( [obj.signals.dateList{:,1}]== (endDate+extend_length));
+           
+           startDateIndex = startDateIndex-1;
 
            %dislocation =  obj.signals.signalParameters(stock1,stock2,startDateIndex_extend:endDateIndex_extend,1,1,dislocationIndex);
            %Zscore =  obj.signals.signalParameters(stock1,stock2,startDateIndex_extend:endDateIndex_extend,1,1,zscoreIndex);
@@ -451,29 +463,20 @@ classdef PairTradingStrategy < mclasses.strategy.LFBaseStrategy
            sigma_start = obj.signals.signalParameters(stock1,stock2,startDateIndex,1,1,sigmaIndex); %开仓时的sigma
            alpha_end = obj.signals.signalParameters(stock1,stock2,endDateIndex,1,1,alphaIndex); %关仓时的mean
 
-           fwdPrice1 = aggregatedDataStruct.stock.properties.fwd_close(startDateIndex_extend:endDateIndex_extend,stock1);
-           fwdPrice2 = aggregatedDataStruct.stock.properties.fwd_close(startDateIndex_extend:endDateIndex_extend,stock2);
+           fwdPrice1 = aggregatedDataStruct.stock.properties.fwd_close(startDateIndex_extend:endDateIndex_extend,pairStruct.stock1);
+           fwdPrice2 = aggregatedDataStruct.stock.properties.fwd_close(startDateIndex_extend:endDateIndex_extend,pairStruct.stock2);
            portfolio_value = fwdPrice1-beta_start*fwdPrice2; %这对pair的股价序列
 
            upboundStart = alpha_start+2*sigma_start; %开仓时的上界
            lowboundStart = alpha_start-2*sigma_start; %开仓时的下界
-
-           windTickers1 = aggregatedDataStruct.stock.description.tickers.windTicker(stock1);
-           windTickers2 = aggregatedDataStruct.stock.description.tickers.windTicker(stock2);
-           windName1 = aggregatedDataStruct.stock.description.tickers.shortName(stock1);
-           windName2 = aggregatedDataStruct.stock.description.tickers.shortName(stock2);
-
-           stockTicker1 =  windTickers1{1}; %stock1交易代码
-           stockTicker2 =  windTickers2{1}; %stock2交易代码
-           stockName1 = windName1{1}; %stock1简称
-           stockName2 = windName2{1}; %stock2简称
 
 
            %下面是画图部分
            %画图部分
            figure
            len=length(portfolio_value); %数组长度
-           xaxis=((startDate-extend_length):(endDate+extend_length)); %时间作为x轴
+           dateList=[obj.signals.dateList{:,1}];
+           xaxis=dateList(startDateIndex_extend:endDateIndex_extend); %时间作为x轴
            plot(xaxis,portfolio_value,'Color','black') %画出pair价格走势
            dateaxis('x',17)
            %画出均值、上下界
