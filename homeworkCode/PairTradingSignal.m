@@ -1,4 +1,4 @@
-%在propertylist里，第六个变为sigma，方便调用；加入第九个变量open，判定是否到达开仓条件
+%??propertylist??锛?绗???涓???涓?sigma锛??逛究璋???锛????ョ??涔?涓?????open锛??ゅ???????拌揪寮?浠??′欢
 classdef PairTradingSignal < handle
     
     properties(Access = public)
@@ -8,10 +8,10 @@ classdef PairTradingSignal < handle
         regressionBetaHistory = [];
         regressionAlphaHistory = [];
         forwardPrices = [];
-        wr = 20;
+        wr = 30;
         ws = 12;
         stockLocation;
-        stockNum = 42;
+        stockNum;
         %sigalParameters has six dimensions:stock1,stock2,dateLocation,wr,ws and properties
         %dateLocation is the location of date in dateList
         %properties have right parameters listed in propertyParameters
@@ -28,9 +28,10 @@ classdef PairTradingSignal < handle
             %store stock prices into forwardPrices
             marketData = mclasses.staticMarketData.BasicMarketLoader.getInstance();
             generalData = marketData.getAggregatedDataStruct;
-            stockSectorFilter = generalData.stock.sectorClassification.levelOne == 4;
+            stockSectorFilter = generalData.stock.sectorClassification.levelOne == 31;
             stockLocation = find(sum(stockSectorFilter) > 1);
             obj.stockLocation = stockLocation;
+            obj.stockNum = length(stockLocation);
             obj.forwardPrices = generalData.stock.properties.fwd_close(:, stockLocation);
             %store actual stock name and code into stockUniverse
             code=generalData.stock.description.tickers.officialTicker(stockLocation);
@@ -108,7 +109,7 @@ classdef PairTradingSignal < handle
             obj.signalParameters(stock1,stock2,dateLocation,1,1,7) = alpha;
             obj.signalParameters(stock1,stock2,dateLocation,1,1,8) = beta;
             %calculate open condition
-            %halfLife<1,不开仓；dislocation/cost<0.04%,不开仓；在2sigma和2.5sigma之间开仓
+            %halfLife<1,涓?寮?浠?锛?dislocation/cost<0.04%,涓?寮?浠?锛???2sigma??2.5sigma涔??村?浠?
             if dislocation/tradingCost <= 0.0004
                 obj.signalParameters(stock1,stock2,dateLocation,1,1,9) = 0;
             elseif zScore >= 2
@@ -146,7 +147,7 @@ classdef PairTradingSignal < handle
                     stockPrice2 = obj.forwardPrices(dateLocation - obj.ws + 1:dateLocation,stock2);
                     stock_stat1 = tabulate(stockPrice1);
                     stock_stat2 = tabulate(stockPrice2);
-                    %如果股价超过30%对ws窗口期内不变，认为数据无效；
+                    %濡????′环瓒?杩?30%瀵?ws绐??ｆ????涓???锛?璁や负?版??????锛?
                     if alphaNaNNum+betaNaNNum >= 1 || max(stock_stat1(:,3)) > 30 || max(stock_stat2(:,3)) > 30
                         obj.signalParameters(stock1,stock2,dateLocation,1,1,:) = zeros(9,1);
                     else
@@ -154,21 +155,21 @@ classdef PairTradingSignal < handle
                         betaSeries = zeros(obj.ws,1);
                         alphaSeries(:,1) = obj.regressionAlphaHistory(stock1,stock2,dateLocation - obj.ws + 1:dateLocation);
                         betaSeries(:,1) = obj.regressionBetaHistory(stock1,stock2,dateLocation - obj.ws + 1:dateLocation);
-                        %对beta和alpha的stability检验，方法为对前1/3和后1/3对序列做wilconx秩和检验
+                        %瀵?beta??alpha??stability妫?楠?锛??规?涓哄?瑰??1/3????1/3瀵瑰?????wilconx绉╁??妫?楠?
                         wilNum = floor(obj.ws/2);
                         [~,h_alpha] = ranksum(alphaSeries(1:wilNum,1),alphaSeries(obj.ws-wilNum+1:obj.ws,1));
                         [~,h_beta] = ranksum(betaSeries(1:wilNum,1),betaSeries(obj.ws-wilNum+1:obj.ws,1));
-                        %如果alpha或beta波动较大，则参数全部传为0
+                        %濡???alpha??beta娉㈠?ㄨ?澶э??????板?ㄩ?ㄤ?涓?0
                         if (h_alpha == 1) || (h_beta == 1)
                             obj.signalParameters(stock1,stock2,dateLocation,1,1,:) = zeros(9,1);
                         else
                             averageAlpha = mean(obj.regressionAlphaHistory(stock1,stock2,dateLocation - obj.ws + 1:dateLocation));
                             averageBeta = mean(obj.regressionBetaHistory(stock1,stock2,dateLocation - obj.ws + 1:dateLocation));
                             residual = stockPrice1 - averageAlpha - averageBeta*stockPrice2;
-                            validity = adftest(residual);
+                            [~,p] = adftest(residual);
                             %if residual series is staionary, then calculate and store parameters 
-                            if validity == 1
-                                obj.signalParameters(stock1,stock2,dateLocation,1,1,1) = validity;
+                            if p <= 0.05
+                                obj.signalParameters(stock1,stock2,dateLocation,1,1,1) = 1;
                                 obj.calculateParameters(stock1,stock2,dateCode,averageAlpha,averageBeta,residual);
                             %if residual series is not stationary, then all the parameters are 0
                             else
