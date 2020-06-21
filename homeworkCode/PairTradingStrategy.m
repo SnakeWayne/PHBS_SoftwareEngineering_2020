@@ -1,12 +1,14 @@
 %%
+
 %PairTradingStrategy部分由李方闻，宗艳洁共同开发
 %宗艳洁负责fields与constructor,generateOrders,examCurrPairList以及autoupdateCurrPairListPnL方法的编写
 %李方闻负责updateCurrPairList,orderSort,openPair与closePair 方法的编写
 
+
 % Writer : Zong Yanjie
 % Date: 2020/06/06
-% 第二次修改后结果
-% code review: 沈廷威，何隽贤
+% 绗簩娆′慨鏀瑰悗缁撴灉
+% code review: 娌堝环濞侊紝浣曢毥璐�
 classdef PairTradingStrategy < mclasses.strategy.LFBaseStrategy
     
     properties(Access = public)
@@ -23,6 +25,7 @@ classdef PairTradingStrategy < mclasses.strategy.LFBaseStrategy
         exchangeStopCounter;
         currPairList;
         plotCounter;%画图计数器，防止过度画图
+
     end
     
     methods
@@ -54,6 +57,7 @@ classdef PairTradingStrategy < mclasses.strategy.LFBaseStrategy
                obj.signals.initializeHistory;
                obj.signalInitialized =1;
                obj.signals.generateSignals(currDate);
+
                obj.winCounter=obj.signals.signalParameters( : , : , 1 , 1 , 1 , 1 )*0; %记录每个pair盈利总个数
                obj.lossCounter =obj.signals.signalParameters( : , : , 1 , 1 , 1 , 1 )*0; %记录每个pair亏损总个数
                obj.cutLossCounter =obj.signals.signalParameters( : , : , 1 , 1 , 1 , 1 )*0; %记录每个pair止损总个数
@@ -64,6 +68,7 @@ classdef PairTradingStrategy < mclasses.strategy.LFBaseStrategy
                obj.noValidation = obj.signals.signalParameters( : , : , 1 , 1 , 1 , 1 )*0;%记录每个pair因为协整关系失效而关仓总次数
                obj.exchangeStopCounter = obj.signals.signalParameters( : , : , 1 , 1 , 1 , 1 )*0;%记录每个pair因为换仓而关仓总次数
 
+
             end
 
             obj.signals.generateSignals(currDate);
@@ -71,7 +76,9 @@ classdef PairTradingStrategy < mclasses.strategy.LFBaseStrategy
             [buyOrderList1, sellOrderList1] = obj.examCurrPairList(currDate);
             [buyOrderList2,sellOrderList2] = obj.updateCurrPairList(currDate);
             order = {sellOrderList1,sellOrderList2,buyOrderList1,buyOrderList2} ;
+
             obj.cutLossRecord = obj.cutLossRecord-1;%止损截止日期减1
+
             for i =1:4
                if ~isempty(order{i}.assetCode)
                    orderList=[orderList, order{i}];
@@ -80,7 +87,9 @@ classdef PairTradingStrategy < mclasses.strategy.LFBaseStrategy
             [~,orderCount] = size(orderList);
             delayList = ones(1,orderCount);
             obj.cutLossRecord = obj.cutLossRecord-1;
+
             if (currDate==datenum(2020, 1,1 ))
+
                 xlswrite('winCounter.xls',obj.winCounter);
                 xlswrite('lossCounter.xls',obj.lossCounter);
                 xlswrite('cutLossCounter.xls',obj.cutLossCounter);
@@ -113,6 +122,7 @@ classdef PairTradingStrategy < mclasses.strategy.LFBaseStrategy
                 sign=false;%the signal whether to close the position
                 stock1=obj.currPairList{1,i}.stock1;
                 stock2=obj.currPairList{1,i}.stock2;      
+
                 stockPrice1 = aggregatedDataStruct.stock.properties.fwd_close(dateLoc, stock1);
                 stockPrice2 = aggregatedDataStruct.stock.properties.fwd_close(dateLoc, stock2);
                 pairPrice = stockPrice1-stockPrice2*obj.currPairList{1,i}.beta;
@@ -128,14 +138,17 @@ classdef PairTradingStrategy < mclasses.strategy.LFBaseStrategy
                 end
                 
 %                 if (currentVal(x1, x2)<1)&&(obj.currPairList{1,i}.PnL>-0.05)% 协助不满足，平仓
+
 %                     sign = true;
 %                     obj.cutLossRecord(x1, x2) =20;%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %                     obj.noValidation(x1, x2) =obj.noValidation(x1, x2)+ 1;
 %                 end
                 
+
                 if  ( pairPrice-obj.currPairList{1,i}.alpha )*obj.currPairList{1,i}.openZScore<0%止盈            %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%;
                     if obj.plotCounter>0
                         obj.plotPair(obj.currPairList{1,i},'止盈',currDate)
+
                         obj.plotCounter = obj.plotCounter-1;
                     end
                     obj.stopWinCounter(x1, x2) = obj.stopWinCounter(x1, x2)+ 1;
@@ -149,8 +162,10 @@ classdef PairTradingStrategy < mclasses.strategy.LFBaseStrategy
                         obj.winCounter(x1, x2) =obj.winCounter(x1, x2)+ 1;
                     end
                     
+
                     obj.existPair(x1,:)=0; %平仓后把这个位置设定为0
                     obj.existPair( : ,x2)=0; %平仓后把这个位置设定为0
+
                     stock1=obj.currPairList{1,i}.stock1;
                     stock2=obj.currPairList{1,i}.stock2;
                     windTickers1 = aggregatedDataStruct.stock.description.tickers.windTicker(stock1);
@@ -158,7 +173,7 @@ classdef PairTradingStrategy < mclasses.strategy.LFBaseStrategy
                     
                     if obj.currPairList{1,i}.stock1Position<0
                         longwindTicker{length(longwindTicker)+1} = windTickers1{1};
-                        longQuant = [longQuant,0];%平仓时把目标仓位设定为0
+                        longQuant = [longQuant,0];%骞充粨鏃舵妸鐩爣浠撲綅璁惧畾涓�0
                     else
                         shortwindTicker{length(shortwindTicker)+1} = windTickers1{1};
                         shortQuant = [shortQuant,0];
@@ -172,7 +187,9 @@ classdef PairTradingStrategy < mclasses.strategy.LFBaseStrategy
                         shortQuant = [shortQuant,0];
                     end        
                else
+
                newList{1,length(newList)+1} =  obj.currPairList{1,i}; %如果没有平仓，则记录下来
+
                end            
            end
            obj.currPairList=newList;   
@@ -212,13 +229,15 @@ classdef PairTradingStrategy < mclasses.strategy.LFBaseStrategy
 
         % Writer : Li Fangwen 
         % Date: 2020/06/06
-        % 第二次修改后结果
-        % code review：沈廷威
+        % 绗簩娆′慨鏀瑰悗缁撴灉
+        % code review锛氭矆寤峰▉
         %%
 
         function  [buyOrderList,sellOrderList] = updateCurrPairList(obj,currDate)
             dateLoc = find( [obj.signals.dateList{:,1}]== currDate );
+
              % 分别找到expectedReturn，validity，zscore和beta在propertyNameList中对应的索引
+
             returnIndex = find(ismember(obj.signals.propertyNameList, 'expectedReturn'));
             validityIndex = find(ismember(obj.signals.propertyNameList, 'validity'));
             zscoreIndex = find(ismember(obj.signals.propertyNameList, 'zScore'));
@@ -227,13 +246,17 @@ classdef PairTradingStrategy < mclasses.strategy.LFBaseStrategy
             sigmaIndex= find(ismember(obj.signals.propertyNameList, 'sigma'));
             openIndex =  find(ismember(obj.signals.propertyNameList, 'open'));
             
+
             % 分别找到不同pair 对应的expectedReturn，validity，zscore，返回的结果都是的二维矩阵
+
             currentExpect = obj.signals.signalParameters(:,:,end,1,1,returnIndex);
             currentVal = obj.signals.signalParameters(:,:,end,1,1,validityIndex);    
             currentOpen =  obj.signals.signalParameters(:,:,end,1,1,openIndex);
             
+
             %因为没有通过检验pair对应的结果都是0，这里我们用每个pair的validity，乘是否zscore大于2的逻辑判断，得到符合标准的交易pair，
             %然后这个矩阵乘以expectReturn，得到满足交易标准的pair的expectReturn
+
             avaliableExpect = currentVal.*currentExpect.*currentOpen.*(~obj.existPair ).*(obj.cutLossRecord<0);%.*tril(currentExpect);%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
             longwindTicker={};
             longQuant = [];
@@ -241,9 +264,10 @@ classdef PairTradingStrategy < mclasses.strategy.LFBaseStrategy
             shortQuant = [];
             listLongth = length(obj.currPairList);
             waitLong={};
-            %这部分的算法思想是从大到小找avaliableExpect中最大的10个，和currPairList进行比较看是否加入。每次都找最大的一个，比较计算完成后，把他的expectreturn变成0，防止下次再次被选到。
+            %杩欓儴鍒嗙殑绠楁硶鎬濇兂鏄粠澶у埌灏忔壘avaliableExpect涓渶澶х殑10涓紝鍜宑urrPairList杩涜姣旇緝鐪嬫槸鍚﹀姞鍏ャ�傛瘡娆￠兘鎵炬渶澶х殑涓�涓紝姣旇緝璁＄畻瀹屾垚鍚庯紝鎶婁粬鐨別xpectreturn鍙樻垚0锛岄槻姝笅娆″啀娆¤閫夊埌銆�
             for i= 1:10
                 maxData = max(max(avaliableExpect)); 
+
                 [x,y] = find(avaliableExpect== maxData);%x,y是对应的最大expectReturn的pair
                 % 沈廷威2020/06/04:你这里每次循环拿到的x,y是同一个吧，有点奇怪
                 % 李方闻2020/06/06:已经修改，之前忘了把找过的pair的expectreturn转化为零，已修改        
@@ -252,50 +276,61 @@ classdef PairTradingStrategy < mclasses.strategy.LFBaseStrategy
                     stock2 =obj.signals.stockLocation(y);%得到股票在数据库中的索引
 
                     %这里目前并不是真的头寸，只是保存了根据zscore判断的买卖方向，zscore大于0，做空，zscore小于0，做多
+
                     stock1Position = -obj.signals.signalParameters(x,y,end,1,1,zscoreIndex)/abs(obj.signals.signalParameters(x,y,end,1,1,zscoreIndex));
                     stock2Position = obj.signals.signalParameters(x,y,end,1,1,betaIndex)/abs(obj.signals.signalParameters(x,y,end,1,1,betaIndex))*...
                         obj.signals.signalParameters(x,y,end,1,1,zscoreIndex)/abs(obj.signals.signalParameters(x,y,end,1,1,zscoreIndex)); 
 
-                    openCost = 0;%这里先不计算，之后再计算
+                    openCost = 0;%杩欓噷鍏堜笉璁＄畻锛屼箣鍚庡啀璁＄畻
                     openZScore = obj.signals.signalParameters(x,y,end,1,1,zscoreIndex);
                     PnL = 0;
+
                     openDate = obj.signals.dateList{dateLoc+1,1};%第二天开盘开仓
+
                     beta = obj.signals.signalParameters(x,y,end,1,1,betaIndex);
                     alpha = obj.signals.signalParameters(x,y,end,1,1,alphaIndex);
                     sigma = obj.signals.signalParameters(x,y,end,1,1,sigmaIndex);
                     newStruct = struct('stock1',stock1,'stock2',stock2,'stock1Position',stock1Position,'stock2Position',...
                     stock2Position,'openCost',openCost,'openZScore',openZScore,'PnL',PnL,'openDate',openDate,'expectReturn',maxData, 'beta',beta,'alpha',alpha ,'sigma',sigma);
+
                     obj.orderSort();%先排序，再比较，expectReturn从小到大排列
                     % 沈廷威2020/06/04:这个语法不太对啊，orderSort()只能由这个类的对象来调用，不能用currPairList直接调用，他就是一个成员变量，一个cell，应该是obj.orderSort()吧
                     % 李方闻2020/06/06:已经按照提示修改
                     
                     if listLongth <10%如果currPairList长度小于10，直接开仓购买组合
                         waitLong{1,length(waitLong)+1} = newStruct;%用来存放将要open的pair，这里只是记下，还没有开
+
                         listLongth = listLongth +1;
                     else
                         if newStruct.expectReturn > obj.currPairList{1,1}.expectReturn
                             if obj.plotCounter>0
+
                                 obj.plotPair(obj.currPairList{1,1},'换仓',currDate)
+
                                 obj.plotCounter = obj.plotCounter-1;
                             end
                             [longwindTicker,longQuant,shortwindTicker,shortQuant] = obj.closePair(obj.currPairList{1,1},longwindTicker,longQuant,shortwindTicker,shortQuant,currDate);
                             obj.exchangeStopCounter(x,y) = obj.exchangeStopCounter(x,y)+1;
+
                             waitLong{1,length(waitLong)+1} = newStruct;%用来存放将要open的pair
                             %因为这个时候listlongth=10，不需要增加listLongth,仅仅是替换
                         end
                     end
                     avaliableExpect(x,:) = 0;
                     avaliableExpect(:,y) = 0;%一天内同一的股票只开一次
+
                 else
                     break;
                 end
             end
+
             % 这个时候currPair里面把需要close的pair都close了，但是需要open的pair还没有加入
            % everyCash = 0.7*cashAvailable/(10-length(obj.currPairList));%每份投资可用资金%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
             everyCash = 0.8*obj.calNetWorth(currDate)/10;
             
             for i = 1:length(waitLong)
                  [longwindTicker,longQuant,shortwindTicker,shortQuant] = obj.openPair(waitLong{1,i},longwindTicker,longQuant,shortwindTicker,shortQuant,currDate,everyCash);%开仓操作
+
             end
                    
             buyOrderList.operate = mclasses.asset.BaseAsset.ADJUST_LONG;
@@ -319,8 +354,8 @@ classdef PairTradingStrategy < mclasses.strategy.LFBaseStrategy
                 for i = 1:len
                     for j =1:len-1
                         if obj.currPairList{1,j}.expectReturn > obj.currPairList{1,j+1}.expectReturn
-                             % 沈廷威2020/06/04:你这边是想做冒泡排序吧，但是我不是很明白currPairList{1,j}调用的是啥，按照设计，应该只需要一个下标可以了
-                             % 李方闻2020/06/06:系统默认是一维向量，这里用一个和两个都一样，习惯用两个
+                             % 娌堝环濞�2020/06/04:浣犺繖杈规槸鎯冲仛鍐掓场鎺掑簭鍚э紝浣嗘槸鎴戜笉鏄緢鏄庣櫧currPairList{1,j}璋冪敤鐨勬槸鍟ワ紝鎸夌収璁捐锛屽簲璇ュ彧闇�瑕佷竴涓笅鏍囧彲浠ヤ簡
+                             % 鏉庢柟闂�2020/06/06:绯荤粺榛樿鏄竴缁村悜閲忥紝杩欓噷鐢ㄤ竴涓拰涓や釜閮戒竴鏍凤紝涔犳儻鐢ㄤ袱涓�
                             tools = obj.currPairList{1,j+1};
                             obj.currPairList{1,j+1} = obj.currPairList{1,j};
                             obj.currPairList{1,j} = tools;
@@ -340,15 +375,16 @@ classdef PairTradingStrategy < mclasses.strategy.LFBaseStrategy
             obj.existPair(x1,:)=1;
             obj.existPair(:,x2)=1;
             windTickers1 = aggregatedDataStruct.stock.description.tickers.windTicker(newStruct.stock1);
-            windTickers2 = aggregatedDataStruct.stock.description.tickers.windTicker(newStruct.stock2);%wind股票代码
+            windTickers2 = aggregatedDataStruct.stock.description.tickers.windTicker(newStruct.stock2);%wind鑲＄エ浠ｇ爜
 
             fwdPrice1 = aggregatedDataStruct.stock.properties.fwd_close(dateLoc, newStruct.stock1);
-            fwdPrice2 = aggregatedDataStruct.stock.properties.fwd_close(dateLoc, newStruct.stock2);%复权价格，用来决定资金分配
+            fwdPrice2 = aggregatedDataStruct.stock.properties.fwd_close(dateLoc, newStruct.stock2);%澶嶆潈浠锋牸锛岀敤鏉ュ喅瀹氳祫閲戝垎閰�
 
             realPrice1 = aggregatedDataStruct.stock.properties.close(dateLoc, newStruct.stock1);
-            realPrice2 = aggregatedDataStruct.stock.properties.close(dateLoc, newStruct.stock2);%用真实股价价格用来决定真实头寸
-            % 沈廷威2020/06/04:这一步别这么干，算是调用未来数据了。还是close(dateLoc，newStruct.stock2)吧 
-            % 李方闻2020/06/06:已经修改
+            realPrice2 = aggregatedDataStruct.stock.properties.close(dateLoc, newStruct.stock2);%鐢ㄧ湡瀹炶偂浠蜂环鏍肩敤鏉ュ喅瀹氱湡瀹炲ご瀵�
+            % 娌堝环濞�2020/06/04:杩欎竴姝ュ埆杩欎箞骞诧紝绠楁槸璋冪敤鏈潵鏁版嵁浜嗐�傝繕鏄痗lose(dateLoc锛宯ewStruct.stock2)鍚� 
+            % 鏉庢柟闂�2020/06/06:宸茬粡淇敼
+
 
             cashFor1 = (1*fwdPrice1)/(1*fwdPrice1+abs(newStruct.beta)*fwdPrice2)*everyCash;%计算出资金分配,比例为1：beta
             cashFor2 = (abs(newStruct.beta)*fwdPrice2)/(1*fwdPrice1+abs(newStruct.beta)*fwdPrice2)*everyCash;
@@ -370,12 +406,13 @@ classdef PairTradingStrategy < mclasses.strategy.LFBaseStrategy
             % 沈廷威2020/06/05:这部分照你现在的修改方式就不是真实的openCost了，要不你就提前拿一下明天open的价格，要不当日就先置为0，在第二天再添加
             % 李方闻2020/06/06:已经修改为用开盘价计算的cost
 
+
             if newStruct.stock1Position>0
                 longwindTicker{length(longwindTicker)+1} = windTickers1{1};
                 longQuant = [longQuant, newStruct.stock1Position];
             else
                 shortwindTicker{length(shortwindTicker)+1} = windTickers1{1};
-                shortQuant = [shortQuant,-newStruct.stock1Position]; %这里都要保存成正数
+                shortQuant = [shortQuant,-newStruct.stock1Position]; %杩欓噷閮借淇濆瓨鎴愭鏁�
 
             end
 
@@ -400,6 +437,7 @@ classdef PairTradingStrategy < mclasses.strategy.LFBaseStrategy
              obj.existPair(:,x2)=0;
              aggregatedDataStruct = obj.marketData.aggregatedDataStruct;
 
+
             % 沈廷威2020/06/05:每次平仓时都要对平仓计数器winCounter或lossCounter进行+1操作，请判断决定平仓时，第二天的卖出价格相对于开仓成本到底是收益还是损失。此处仅为统计使用，故可使用未来数据
             % 这部分可以按照ppt中显示过的，新增一个cell对象，对在每次平仓时仅存储平仓的股票，开仓日期，平仓日期，平仓原因等信息，后续集中对这个数据进行统计分析。可细化。
             % 李方闻2020/06/06:已经修改，细化部分在可能需要之后和前半部分同学协商共同解决
@@ -407,6 +445,7 @@ classdef PairTradingStrategy < mclasses.strategy.LFBaseStrategy
             windTickers2 = aggregatedDataStruct.stock.description.tickers.windTicker(closeStruct.stock2);%得到wind股票代码
 
             obj.currPairList = {obj.currPairList{2:end}} ; %删除第一个
+
             
             if closeStruct.PnL>0
                 obj.stopWinCounter(x1,x2) =obj.stopWinCounter(x1,x2)+1;
@@ -416,7 +455,7 @@ classdef PairTradingStrategy < mclasses.strategy.LFBaseStrategy
             
             if closeStruct.stock1Position<0
                 longwindTicker{length(longwindTicker)+1} = windTickers1{1};
-                longQuant = [longQuant,0];%平仓时把目标仓位设定为0
+                longQuant = [longQuant,0];%骞充粨鏃舵妸鐩爣浠撲綅璁惧畾涓�0
             else
                 shortwindTicker{length(shortwindTicker)+1} = windTickers1{1};
                 shortQuant = [shortQuant,0];
@@ -432,18 +471,21 @@ classdef PairTradingStrategy < mclasses.strategy.LFBaseStrategy
         end
         
         function plotPair(obj,pairStruct,closeCause,endDate)
+
             stock1 = find(ismember(obj.signals.stockLocation,pairStruct.stock1)); %股票index
+
             stock2 = find(ismember(obj.signals.stockLocation,pairStruct.stock2));
             aggregatedDataStruct = obj.marketData.aggregatedDataStruct;
             windTickers1 = aggregatedDataStruct.stock.description.tickers.windTicker(pairStruct.stock1);
             windTickers2 = aggregatedDataStruct.stock.description.tickers.windTicker(pairStruct.stock2);
             windName1 = aggregatedDataStruct.stock.description.tickers.shortName(pairStruct.stock1);
             windName2 = aggregatedDataStruct.stock.description.tickers.shortName(pairStruct.stock2);
-            
+
             stockTicker1 =  windTickers1{1}; %stock1交易代码
             stockTicker2 =  windTickers2{1}; %stock2交易代码
             stockName1 = windName1{1}; %stock1简称
             stockName2 = windName2{1}; %stock2简称
+
             
             startDate=pairStruct.openDate;
             
@@ -455,13 +497,13 @@ classdef PairTradingStrategy < mclasses.strategy.LFBaseStrategy
             %sigmaIndex = find(ismember(obj.signals.propertyNameList, 'sigma'));
             %dislocationIndex = find(ismember(obj.signals.propertyNameList, 'dislocation'));
             
+
             extend_length=3; %startDate与endDate往前后延长几天，方便画图
             startDateIndex = find( [obj.signals.dateList{:,1}]== startDate);
             startDateIndex_extend = startDateIndex-extend_length;
             endDateIndex = find( [obj.signals.dateList{:,1}]== endDate);
-            endDateIndex = endDateIndex +1;
+            endDateIndex = endDateIndex+1
             endDateIndex_extend = endDateIndex+extend_length;
-            
             
             %dislocation =  obj.signals.signalParameters(stock1,stock2,startDateIndex_extend:endDateIndex_extend,1,1,dislocationIndex);
             %Zscore =  obj.signals.signalParameters(stock1,stock2,startDateIndex_extend:endDateIndex_extend,1,1,zscoreIndex);
@@ -469,12 +511,14 @@ classdef PairTradingStrategy < mclasses.strategy.LFBaseStrategy
             %alpha_start = obj.signals.signalParameters(stock1,stock2,startDateIndex,1,1,alphaIndex); %开仓时的mean
             %sigma_start = obj.signals.signalParameters(stock1,stock2,startDateIndex,1,1,sigmaIndex); %开仓时的sigma
             %alpha_end = obj.signals.signalParameters(stock1,stock2,endDateIndex,1,1,alphaIndex); %关仓时的mean
+
             beta_start=pairStruct.beta;
             alpha_start=pairStruct.alpha;
             sigma_start=pairStruct.sigma;
             
             fwdPrice1 = aggregatedDataStruct.stock.properties.fwd_close(startDateIndex_extend:endDateIndex_extend,pairStruct.stock1);
             fwdPrice2 = aggregatedDataStruct.stock.properties.fwd_close(startDateIndex_extend:endDateIndex_extend,pairStruct.stock2);
+
             portfolio_value = fwdPrice1-beta_start*fwdPrice2; %这对pair的股价序列
             
             upboundStart = alpha_start+2*sigma_start; %开仓时的上界
@@ -490,6 +534,7 @@ classdef PairTradingStrategy < mclasses.strategy.LFBaseStrategy
             plot(xaxis,portfolio_value,'Color','black') %画出pair价格走势
             dateaxis('x',17)
             %画出均值、上下界
+
             line([xaxis(1),xaxis(end)],[alpha_start,alpha_start],'linestyle','--','Color','red')
             text(xaxis(1)-1,alpha_start,'Mean(open)','Color','red')
             %line([startDate-extend_length,endDate+extend_length],[alpha_end,alpha_end],'linestyle','--','Color','blue')
@@ -500,9 +545,11 @@ classdef PairTradingStrategy < mclasses.strategy.LFBaseStrategy
             text(xaxis(1)-1,lowboundStart,'Lower Bound','Color','blue')
             plottitle1=['stock pair ','(',stockName1,',',stockName2,')',' price movement'];
             plottitle2=['reason for closing the pair: ',closeCause];
+
             title({plottitle1;plottitle2}) %注明pair及平仓原因
             
             %注明开仓、平仓时间
+
             ydata=get(gca,'YLim');
             text(startDate,portfolio_value(extend_length+1),'*','color','r')
             text(startDate,min(ydata),[datestr(startDate,'yyyy-mm-dd'),'open position'],'FontWeight','bold','Color','red','HorizontalAlignment','center')
@@ -514,4 +561,3 @@ classdef PairTradingStrategy < mclasses.strategy.LFBaseStrategy
     end
 end
         
-
