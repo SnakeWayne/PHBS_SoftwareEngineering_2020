@@ -99,6 +99,7 @@ classdef PairTradingStrategy < mclasses.strategy.LFBaseStrategy
             validityIndex = find(ismember(obj.signals.propertyNameList, 'validity'));
             currentVal = obj.signals.signalParameters(:,:,end,1,1,validityIndex);
             aggregatedDataStruct = obj.marketData.aggregatedDataStruct;
+            dateLoc = find( [obj.signals.dateList{:,1}]== currDate ) ;
 
             longwindTicker={};
             longQuant = [];
@@ -110,8 +111,13 @@ classdef PairTradingStrategy < mclasses.strategy.LFBaseStrategy
                 x1 = find(ismember(obj.signals.stockLocation,obj.currPairList{1,i}.stock1));
                 x2 = find(ismember(obj.signals.stockLocation,obj.currPairList{1,i}.stock2));
                 sign=false;%the signal whether to close the position
-                
-                if (obj.currPairList{1,i}.PnL<-0.05) %Ö¹ËðÆ½²Ö
+                stock1=obj.currPairList{1,i}.stock1;
+                stock2=obj.currPairList{1,i}.stock2;      
+                stockPrice1 = aggregatedDataStruct.stock.properties.close(dateLoc, stock1);
+                stockPrice2 = aggregatedDataStruct.stock.properties.close(dateLoc, stock2);
+                pairPrice = stockPrice1-stockPrice2*obj.currPairList{1,i}.beta;
+           
+                if (obj.currPairList{1,i}.PnL<-0.03) %Ö¹ËðÆ½²Ö
                     if obj.plotCounter>0
                         obj.plotPair(obj.currPairList{1,i},'Ö¹Ëð',currDate)
                         obj.plotCounter = obj.plotCounter-1;
@@ -127,7 +133,7 @@ classdef PairTradingStrategy < mclasses.strategy.LFBaseStrategy
 %                     obj.noValidation(x1, x2) =obj.noValidation(x1, x2)+ 1;
 %                 end
                 
-                if ( currentZscore(x1,x2)*obj.currPairList{1,i}.openZScore<0 )&&(currentVal(x1, x2)>0)%Ö¹Ó¯            %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%;
+                if  ( pairPrice-obj.currPairList{1,i}.alpha )*obj.currPairList{1,i}.openZScore<0%Ö¹Ó¯            %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%;
                     if obj.plotCounter>0
                         obj.plotPair(obj.currPairList{1,i},'Ö¹Ó¯',currDate)
                         obj.plotCounter = obj.plotCounter-1;
