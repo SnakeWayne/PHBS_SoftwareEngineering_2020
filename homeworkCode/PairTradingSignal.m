@@ -1,4 +1,4 @@
-%??propertylist??�?�???�???�?sigma�??�便�???�????��??�?�?????open�??��???????�达�?�??�件
+%??propertylist??ï¼?ç¬???ä¸???ä¸?sigmaï¼??¹ä¾¿è°???ï¼????¥ç??ä¹?ä¸?????openï¼??¤å???????°è¾¾å¼?ä»??¡ä»¶
 classdef PairTradingSignal < handle
     
     properties(Access = public)
@@ -98,7 +98,7 @@ classdef PairTradingSignal < handle
             %calculate expeted return
             tradingCost = obj.forwardPrices(dateLocation,stock1)+abs(beta)*obj.forwardPrices(dateLocation,stock2);
             if halfLife > 0
-                expectedReturn = dislocation/(2*tradingCost)/(halfLife/256);
+                expectedReturn = abs(dislocation)/(2*tradingCost)/(halfLife/256);
             else
                 expectedReturn = 0;
             end
@@ -109,10 +109,10 @@ classdef PairTradingSignal < handle
             obj.signalParameters(stock1,stock2,dateLocation,1,1,7) = alpha;
             obj.signalParameters(stock1,stock2,dateLocation,1,1,8) = beta;
             %calculate open condition
-            %halfLife<1,�?�?�?�?dislocation/cost<0.04%,�?�?�?�???2sigma??2.5sigma�??��?�?
-            if dislocation/tradingCost <= 0.0004
+            %halfLife<1,ä¸?å¼?ä»?ï¼?dislocation/cost<0.04%,ä¸?å¼?ä»?ï¼???2sigma??2.5sigmaä¹??´å?ä»?
+            if abs(dislocation)/tradingCost <= 0.0004
                 obj.signalParameters(stock1,stock2,dateLocation,1,1,9) = 0;
-            elseif zScore >= 2
+            elseif abs(zScore) >= 2 
                 obj.signalParameters(stock1,stock2,dateLocation,1,1,9) = 1;
             else
                 obj.signalParameters(stock1,stock2,dateLocation,1,1,9) = 0;
@@ -147,7 +147,7 @@ classdef PairTradingSignal < handle
                     stockPrice2 = obj.forwardPrices(dateLocation - obj.ws + 1:dateLocation,stock2);
                     stock_stat1 = tabulate(stockPrice1);
                     stock_stat2 = tabulate(stockPrice2);
-                    %�????�价�?�?30%�?ws�??��????�???�?认为?��??????�?
+                    %å¦????¡ä»·è¶?è¿?30%å¯?wsçª??£æ????ä¸???ï¼?è®¤ä¸º?°æ??????ï¼?
                     if alphaNaNNum+betaNaNNum >= 1 || max(stock_stat1(:,3)) > 30 || max(stock_stat2(:,3)) > 30
                         obj.signalParameters(stock1,stock2,dateLocation,1,1,:) = zeros(9,1);
                     else
@@ -155,11 +155,11 @@ classdef PairTradingSignal < handle
                         betaSeries = zeros(obj.ws,1);
                         alphaSeries(:,1) = obj.regressionAlphaHistory(stock1,stock2,dateLocation - obj.ws + 1:dateLocation);
                         betaSeries(:,1) = obj.regressionBetaHistory(stock1,stock2,dateLocation - obj.ws + 1:dateLocation);
-                        %�?beta??alpha??stability�?�?�??��?为�?��??1/3????1/3对�?????wilconx秩�??�?�?
+                        %å¯?beta??alpha??stabilityæ£?éª?ï¼??¹æ?ä¸ºå?¹å??1/3????1/3å¯¹å?????wilconxç§©å??æ£?éª?
                         wilNum = floor(obj.ws/2);
                         [~,h_alpha] = ranksum(alphaSeries(1:wilNum,1),alphaSeries(obj.ws-wilNum+1:obj.ws,1));
                         [~,h_beta] = ranksum(betaSeries(1:wilNum,1),betaSeries(obj.ws-wilNum+1:obj.ws,1));
-                        %�???alpha??beta波�?��?大�??????��?��?��?�?0
+                        %å¦???alpha??betaæ³¢å?¨è?å¤§ï??????°å?¨é?¨ä?ä¸?0
                         if (h_alpha == 1) || (h_beta == 1)
                             obj.signalParameters(stock1,stock2,dateLocation,1,1,:) = zeros(9,1);
                         else
