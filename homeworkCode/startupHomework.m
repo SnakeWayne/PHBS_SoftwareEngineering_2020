@@ -14,7 +14,7 @@ set(groot, 'defaultFigurePaperPositionMode', 'auto')
 clear mclasses;
 
 %% path variables
-rootpath = fullfile('C:\Users\52658\Desktop\homeworkCode');
+rootpath = fullfile('D:\WorkStuff_2020\PHBS_soft\PHBS_SoftwareEngineering_2020\homeworkCode');
 addpath(fullfile(rootpath, 'sharedLibrary',  'utils'));
 addpath(genpath_exclude(rootpath, {'.git', '.ignore', 'data', 'results', 'serializedData', 'reports', 'doc', '+mclasses'}));
 

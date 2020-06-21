@@ -1,4 +1,4 @@
-%åœ¨propertylisté‡Œï¼Œç¬¬å…­ä¸ªå˜ä¸ºsigmaï¼Œæ–¹ä¾¿è°ƒç”¨ï¼›åŠ å…¥ç¬¬ä¹ä¸ªå˜é‡openï¼Œåˆ¤å®šæ˜¯å¦åˆ°è¾¾å¼€ä»“æ¡ä»¶
+%??propertylist??ï¼?ç¬???ä¸???ä¸?sigmaï¼??¹ä¾¿è°???ï¼????¥ç??ä¹?ä¸?????openï¼??¤å???????°è¾¾å¼?ä»??¡ä»¶
 classdef PairTradingSignal < handle
     
     properties(Access = public)
@@ -8,10 +8,10 @@ classdef PairTradingSignal < handle
         regressionBetaHistory = [];
         regressionAlphaHistory = [];
         forwardPrices = [];
-        wr = 20;
+        wr = 30;
         ws = 12;
         stockLocation;
-        stockNum = 42;
+        stockNum;
         %sigalParameters has six dimensions:stock1,stock2,dateLocation,wr,ws and properties
         %dateLocation is the location of date in dateList
         %properties have right parameters listed in propertyParameters
@@ -28,9 +28,10 @@ classdef PairTradingSignal < handle
             %store stock prices into forwardPrices
             marketData = mclasses.staticMarketData.BasicMarketLoader.getInstance();
             generalData = marketData.getAggregatedDataStruct;
-            stockSectorFilter = generalData.stock.sectorClassification.levelOne == 4;
+            stockSectorFilter = generalData.stock.sectorClassification.levelOne == 31;
             stockLocation = find(sum(stockSectorFilter) > 1);
             obj.stockLocation = stockLocation;
+            obj.stockNum = length(stockLocation);
             obj.forwardPrices = generalData.stock.properties.fwd_close(:, stockLocation);
             %store actual stock name and code into stockUniverse
             code=generalData.stock.description.tickers.officialTicker(stockLocation);
@@ -78,7 +79,7 @@ classdef PairTradingSignal < handle
         function obj = calculateParameters(obj,stock1,stock2,dateCode,alpha,beta,residual)
             dateLocation = find(cell2mat(obj.dateList(:,1)) == dateCode);
             %calculate dislocation
-            dislocation = abs(obj.forwardPrices(dateLocation,stock1)-beta*obj.forwardPrices(dateLocation,stock2) - alpha);
+            dislocation = obj.forwardPrices(dateLocation,stock1)-beta*obj.forwardPrices(dateLocation,stock2) - alpha;
             obj.signalParameters(stock1,stock2,dateLocation,1,1,3) = dislocation;
             %calculate z-score
             zScore = dislocation/std(residual);
@@ -108,7 +109,7 @@ classdef PairTradingSignal < handle
             obj.signalParameters(stock1,stock2,dateLocation,1,1,7) = alpha;
             obj.signalParameters(stock1,stock2,dateLocation,1,1,8) = beta;
             %calculate open condition
-            %halfLife<1,ä¸å¼€ä»“ï¼›dislocation/cost<0.04%,ä¸å¼€ä»“ï¼›åœ¨2sigmaå’Œ2.5sigmaä¹‹é—´å¼€ä»“
+            %halfLife<1,ä¸?å¼?ä»?ï¼?dislocation/cost<0.04%,ä¸?å¼?ä»?ï¼???2sigma??2.5sigmaä¹??´å?ä»?
             if dislocation/tradingCost <= 0.0004
                 obj.signalParameters(stock1,stock2,dateLocation,1,1,9) = 0;
             elseif zScore >= 2
@@ -146,7 +147,7 @@ classdef PairTradingSignal < handle
                     stockPrice2 = obj.forwardPrices(dateLocation - obj.ws + 1:dateLocation,stock2);
                     stock_stat1 = tabulate(stockPrice1);
                     stock_stat2 = tabulate(stockPrice2);
-                    %å¦‚æœè‚¡ä»·è¶…è¿‡30%å¯¹wsçª—å£æœŸå†…ä¸å˜ï¼Œè®¤ä¸ºæ•°æ®æ— æ•ˆï¼›
+                    %å¦????¡ä»·è¶?è¿?30%å¯?wsçª??£æ????ä¸???ï¼?è®¤ä¸º?°æ??????ï¼?
                     if alphaNaNNum+betaNaNNum >= 1 || max(stock_stat1(:,3)) > 30 || max(stock_stat2(:,3)) > 30
                         obj.signalParameters(stock1,stock2,dateLocation,1,1,:) = zeros(9,1);
                     else
@@ -154,21 +155,21 @@ classdef PairTradingSignal < handle
                         betaSeries = zeros(obj.ws,1);
                         alphaSeries(:,1) = obj.regressionAlphaHistory(stock1,stock2,dateLocation - obj.ws + 1:dateLocation);
                         betaSeries(:,1) = obj.regressionBetaHistory(stock1,stock2,dateLocation - obj.ws + 1:dateLocation);
-                        %å¯¹betaå’Œalphaçš„stabilityæ£€éªŒï¼Œæ–¹æ³•ä¸ºå¯¹å‰1/3å’Œå1/3å¯¹åºåˆ—åšwilconxç§©å’Œæ£€éªŒ
+                        %å¯?beta??alpha??stabilityæ£?éª?ï¼??¹æ?ä¸ºå?¹å??1/3????1/3å¯¹å?????wilconxç§©å??æ£?éª?
                         wilNum = floor(obj.ws/2);
                         [~,h_alpha] = ranksum(alphaSeries(1:wilNum,1),alphaSeries(obj.ws-wilNum+1:obj.ws,1));
                         [~,h_beta] = ranksum(betaSeries(1:wilNum,1),betaSeries(obj.ws-wilNum+1:obj.ws,1));
-                        %å¦‚æœalphaæˆ–betaæ³¢åŠ¨è¾ƒå¤§ï¼Œåˆ™å‚æ•°å…¨éƒ¨ä¼ ä¸º0
+                        %å¦???alpha??betaæ³¢å?¨è?å¤§ï??????°å?¨é?¨ä?ä¸?0
                         if (h_alpha == 1) || (h_beta == 1)
                             obj.signalParameters(stock1,stock2,dateLocation,1,1,:) = zeros(9,1);
                         else
                             averageAlpha = mean(obj.regressionAlphaHistory(stock1,stock2,dateLocation - obj.ws + 1:dateLocation));
                             averageBeta = mean(obj.regressionBetaHistory(stock1,stock2,dateLocation - obj.ws + 1:dateLocation));
                             residual = stockPrice1 - averageAlpha - averageBeta*stockPrice2;
-                            validity = adftest(residual);
+                            [~,p] = adftest(residual);
                             %if residual series is staionary, then calculate and store parameters 
-                            if validity == 1
-                                obj.signalParameters(stock1,stock2,dateLocation,1,1,1) = validity;
+                            if p <= 0.05
+                                obj.signalParameters(stock1,stock2,dateLocation,1,1,1) = 1;
                                 obj.calculateParameters(stock1,stock2,dateCode,averageAlpha,averageBeta,residual);
                             %if residual series is not stationary, then all the parameters are 0
                             else

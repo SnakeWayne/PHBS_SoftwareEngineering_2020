@@ -80,7 +80,7 @@ classdef PairTradingStrategy < mclasses.strategy.LFBaseStrategy
             [~,orderCount] = size(orderList);
             delayList = ones(1,orderCount);
             obj.cutLossRecord = obj.cutLossRecord-1;
-            if (currDate==datenum(2020, 2,1 ))
+            if (currDate==datenum(2020, 1,1 ))
                 xlswrite('winCounter.xls',obj.winCounter);
                 xlswrite('lossCounter.xls',obj.lossCounter);
                 xlswrite('cutLossCounter.xls',obj.cutLossCounter);
@@ -113,8 +113,8 @@ classdef PairTradingStrategy < mclasses.strategy.LFBaseStrategy
                 sign=false;%the signal whether to close the position
                 stock1=obj.currPairList{1,i}.stock1;
                 stock2=obj.currPairList{1,i}.stock2;      
-                stockPrice1 = aggregatedDataStruct.stock.properties.close(dateLoc, stock1);
-                stockPrice2 = aggregatedDataStruct.stock.properties.close(dateLoc, stock2);
+                stockPrice1 = aggregatedDataStruct.stock.properties.fwd_close(dateLoc, stock1);
+                stockPrice2 = aggregatedDataStruct.stock.properties.fwd_close(dateLoc, stock2);
                 pairPrice = stockPrice1-stockPrice2*obj.currPairList{1,i}.beta;
            
                 if (obj.currPairList{1,i}.PnL<-0.03) %Ö¹ËðÆ½²Ö
@@ -459,7 +459,9 @@ classdef PairTradingStrategy < mclasses.strategy.LFBaseStrategy
             startDateIndex = find( [obj.signals.dateList{:,1}]== startDate);
             startDateIndex_extend = startDateIndex-extend_length;
             endDateIndex = find( [obj.signals.dateList{:,1}]== endDate);
+            endDateIndex = endDateIndex +1;
             endDateIndex_extend = endDateIndex+extend_length;
+            
             
             %dislocation =  obj.signals.signalParameters(stock1,stock2,startDateIndex_extend:endDateIndex_extend,1,1,dislocationIndex);
             %Zscore =  obj.signals.signalParameters(stock1,stock2,startDateIndex_extend:endDateIndex_extend,1,1,zscoreIndex);

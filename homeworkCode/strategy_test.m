@@ -7,8 +7,8 @@ director = mclasses.director.HomeworkDirector([], 'homework_1');
 % parameters for director
 directorParameters = [];
 
-initParameters.startDate = datenum(2017, 1, 1);
-initParameters.endDate = datenum(2020,2 , 2);
+initParameters.startDate = datenum(2019, 4, 15);
+initParameters.endDate = datenum(2020,1 , 1);
 
 director.initialize(initParameters);
 
