@@ -49,29 +49,47 @@ classdef PairTradingSignal < handle
             obj.startDateLocation = find(cell2mat(obj.dateList(:,1)) == obj.startDate);
         end
         
-        %calculate ws-1 days' alpha and beta of all pairs before startDate
-        function obj = initializeHistory(obj)
-            for stock1 = 1:1:obj.stockNum-1
-                for stock2 = stock1+1:1:obj.stockNum
-                    for dateLocation = obj.startDateLocation - obj.ws + 1:1:obj.startDateLocation - 1
-                        Y = obj.forwardPrices(dateLocation-obj.wr+1:dateLocation,stock1);
-                        X = obj.forwardPrices(dateLocation-obj.wr+1:dateLocation,stock2);
-                        %count the number of NaN in Y and X
-                        YNaNNum = sum(isnan(Y));
-                        XNaNNum = sum(isnan(X));
-                        Y_stat = tabulate(Y);
-                        X_stat = tabulate(X);
-                        %if there are NaNs in Y and X or prices of stock1 or stock2 didn't change for more than 20% time period, fill NaN into regression history
-                        if YNaNNum+XNaNNum >= 1 || max(Y_stat(:,3)) > 20|| max(X_stat(:,3)) > 20
-                            obj.regressionAlphaHistory(stock1,stock2,dateLocation) = NaN;
-                            obj.regressionBetaHistory(stock1,stock2,dateLocation) = NaN;
-                        else
-                            [b,~,~,~,~] = regress(Y,[ones(obj.wr,1), X]);
-                            obj.regressionAlphaHistory(stock1,stock2,dateLocation) = b(1);
-                            obj.regressionBetaHistory(stock1,stock2,dateLocation) = b(2);
-                        end
-                    end
-                end
+        %calculate the parameters of stock1 and stock2 at given date
+        function obj = calculateParameters(obj,stock1,stock2,dateCode,alpha,beta,residual)
+            dateLocation = find(cell2mat(obj.dateList(:,1)) == dateCode);
+            %calculate dislocation
+            dislocation = obj.forwardPrices(dateLocation,stock1)-beta*obj.forwardPrices(dateLocation,stock2) - alpha;
+            obj.signalParameters(stock1,stock2,dateLocation,1,1,3) = dislocation;
+            %calculate z-score
+            zScore = dislocation/std(residual);
+            obj.signalParameters(stock1,stock2,dateLocation,1,1,2) = zScore;
+            %calculate halflife
+            Y = residual(2:obj.ws);
+            X = [ones(obj.ws-1,1),residual(1:obj.ws-1)];
+            [b ,~ , ~ ,~ , ~] = regress(Y,X);
+            if b(2) > 0
+                lambda = -log(b(2));
+                halfLife = log(2)/lambda;
+            else
+                halfLife = 0;
+            end
+            obj.signalParameters(stock1,stock2,dateLocation,1,1,5) = halfLife;  
+            %calculate expeted return
+            tradingCost = obj.forwardPrices(dateLocation,stock1)+abs(beta)*obj.forwardPrices(dateLocation,stock2);
+            if halfLife > 0
+                expectedReturn = abs(dislocation)/(2*tradingCost)/(halfLife/256);
+            else
+                expectedReturn = 0;
+            end
+            obj.signalParameters(stock1,stock2,dateLocation,1,1,4) = expectedReturn;
+            %calculate entry point boundary
+            sigma = std(residual);
+            obj.signalParameters(stock1,stock2,dateLocation,1,1,6) = sigma;
+            obj.signalParameters(stock1,stock2,dateLocation,1,1,7) = alpha;
+            obj.signalParameters(stock1,stock2,dateLocation,1,1,8) = beta;
+            %calculate open condition
+            %halfLife<1,涓?寮?浠?锛?dislocation/cost<0.04%,涓?寮?浠?锛???2sigma??2.5sigma涔??村?浠?
+            if abs(dislocation)/tradingCost <= 0.0004
+                obj.signalParameters(stock1,stock2,dateLocation,1,1,9) = 0;
+            elseif zScore >= 2
+                obj.signalParameters(stock1,stock2,dateLocation,1,1,9) = 1;
+            else
+                obj.signalParameters(stock1,stock2,dateLocation,1,1,9) = 0;
             end
         end
         
