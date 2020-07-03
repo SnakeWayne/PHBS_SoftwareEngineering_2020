@@ -1,12 +1,12 @@
 %%
-%PairTradingStrategy²¿·ÖÓÉÀî·½ÎÅ£¬×ÚÑŞ½à¹²Í¬¿ª·¢
-%×ÚÑŞ½à¸ºÔğfieldsÓëconstructor,generateOrders,examCurrPairListÒÔ¼°autoupdateCurrPairListPnL·½·¨µÄ±àĞ´
-%Àî·½ÎÅ¸ºÔğupdateCurrPairList,orderSort,openPairÓëclosePair ·½·¨µÄ±àĞ´
+%PairTradingStrategyéƒ¨åˆ†ç”±ææ–¹é—»ï¼Œå®—è‰³æ´å…±åŒå¼€å‘
+%å®—è‰³æ´è´Ÿè´£fieldsä¸constructor,generateOrders,examCurrPairListä»¥åŠautoupdateCurrPairListPnLæ–¹æ³•çš„ç¼–å†™
+%ææ–¹é—»è´Ÿè´£updateCurrPairList,orderSort,openPairä¸closePair æ–¹æ³•çš„ç¼–å†™
 
 % Writer : Zong Yanjie
 % Date: 2020/06/06
-% µÚ¶ş´ÎĞŞ¸Äºó½á¹û
-% code review: ÉòÍ¢Íş£¬ºÎöÁÏÍ
+% ç¬¬äºŒæ¬¡ä¿®æ”¹åç»“æœ
+% code review: æ²ˆå»·å¨ï¼Œä½•éš½è´¤
 classdef PairTradingStrategy < mclasses.strategy.LFBaseStrategy
     
     properties(Access = public)
@@ -22,7 +22,7 @@ classdef PairTradingStrategy < mclasses.strategy.LFBaseStrategy
         stopWinCounter ;
         exchangeStopCounter;
         currPairList;
-        plotCounter;%»­Í¼¼ÆÊıÆ÷£¬·ÀÖ¹¹ı¶È»­Í¼
+        plotCounter;%ç”»å›¾è®¡æ•°å™¨ï¼Œé˜²æ­¢è¿‡åº¦ç”»å›¾
     end
     
     methods
@@ -54,15 +54,15 @@ classdef PairTradingStrategy < mclasses.strategy.LFBaseStrategy
                obj.signals.initializeHistory;
                obj.signalInitialized =1;
                obj.signals.generateSignals(currDate);
-               obj.winCounter=obj.signals.signalParameters( : , : , 1 , 1 , 1 , 1 )*0; %¼ÇÂ¼Ã¿¸öpairÓ¯Àû×Ü¸öÊı
-               obj.lossCounter =obj.signals.signalParameters( : , : , 1 , 1 , 1 , 1 )*0; %¼ÇÂ¼Ã¿¸öpair¿÷Ëğ×Ü¸öÊı
-               obj.cutLossCounter =obj.signals.signalParameters( : , : , 1 , 1 , 1 , 1 )*0; %¼ÇÂ¼Ã¿¸öpairÖ¹Ëğ×Ü¸öÊı
-               obj.stopWinCounter =obj.signals.signalParameters( : , : , 1 , 1 , 1 , 1 )*0;%¼ÇÂ¼Ã¿¸öpairÖ¹Ó¯×Ü¸öÊı
-               obj.existPair = obj.signals.signalParameters( : , : , 1 , 1 , 1 , 1 )*0; %¼ÇÂ¼´æÔÚµÄpair£¬ÊÇ£¬Î»ÖÃÔòÎª1£¬·ñÔòÎª0
-               obj.cutLossRecord=obj.signals.signalParameters( : , : , 1 , 1 , 1 , 1 )*0-1; %¼ÇÂ¼¸ÃpairÊÇ·ñÔÚÖ¹ËğÏß¶¨ÆÚÄÚ£¬ÊÇÔò´óÓÚ0
-               obj.openCounter=obj.signals.signalParameters( : , : , 1 , 1 , 1 , 1 )*0; %¼ÇÂ¼Ã¿¸öpair×ÜµÄ¿ª²Ö´ÎÊı
-               obj.noValidation = obj.signals.signalParameters( : , : , 1 , 1 , 1 , 1 )*0;%¼ÇÂ¼Ã¿¸öpairÒòÎªĞ­Õû¹ØÏµÊ§Ğ§¶ø¹Ø²Ö×Ü´ÎÊı
-               obj.exchangeStopCounter = obj.signals.signalParameters( : , : , 1 , 1 , 1 , 1 )*0;%¼ÇÂ¼Ã¿¸öpairÒòÎª»»²Ö¶ø¹Ø²Ö×Ü´ÎÊı
+               obj.winCounter=obj.signals.signalParameters( : , : , 1 , 1 , 1 , 1 )*0; %è®°å½•æ¯ä¸ªpairç›ˆåˆ©æ€»ä¸ªæ•°
+               obj.lossCounter =obj.signals.signalParameters( : , : , 1 , 1 , 1 , 1 )*0; %è®°å½•æ¯ä¸ªpairäºæŸæ€»ä¸ªæ•°
+               obj.cutLossCounter =obj.signals.signalParameters( : , : , 1 , 1 , 1 , 1 )*0; %è®°å½•æ¯ä¸ªpairæ­¢æŸæ€»ä¸ªæ•°
+               obj.stopWinCounter =obj.signals.signalParameters( : , : , 1 , 1 , 1 , 1 )*0;%è®°å½•æ¯ä¸ªpairæ­¢ç›ˆæ€»ä¸ªæ•°
+               obj.existPair = obj.signals.signalParameters( : , : , 1 , 1 , 1 , 1 )*0; %è®°å½•å­˜åœ¨çš„pairï¼Œæ˜¯ï¼Œä½ç½®åˆ™ä¸º1ï¼Œå¦åˆ™ä¸º0
+               obj.cutLossRecord=obj.signals.signalParameters( : , : , 1 , 1 , 1 , 1 )*0-1; %è®°å½•è¯¥pairæ˜¯å¦åœ¨æ­¢æŸçº¿å®šæœŸå†…ï¼Œæ˜¯åˆ™å¤§äº0
+               obj.openCounter=obj.signals.signalParameters( : , : , 1 , 1 , 1 , 1 )*0; %è®°å½•æ¯ä¸ªpairæ€»çš„å¼€ä»“æ¬¡æ•°
+               obj.noValidation = obj.signals.signalParameters( : , : , 1 , 1 , 1 , 1 )*0;%è®°å½•æ¯ä¸ªpairå› ä¸ºåæ•´å…³ç³»å¤±æ•ˆè€Œå…³ä»“æ€»æ¬¡æ•°
+               obj.exchangeStopCounter = obj.signals.signalParameters( : , : , 1 , 1 , 1 , 1 )*0;%è®°å½•æ¯ä¸ªpairå› ä¸ºæ¢ä»“è€Œå…³ä»“æ€»æ¬¡æ•°
 
             end
 
@@ -71,7 +71,7 @@ classdef PairTradingStrategy < mclasses.strategy.LFBaseStrategy
             [buyOrderList1, sellOrderList1] = obj.examCurrPairList(currDate);
             [buyOrderList2,sellOrderList2] = obj.updateCurrPairList(currDate);
             order = {sellOrderList1,sellOrderList2,buyOrderList1,buyOrderList2} ;
-            obj.cutLossRecord = obj.cutLossRecord-1;%Ö¹Ëğ½ØÖ¹ÈÕÆÚ¼õ1
+            obj.cutLossRecord = obj.cutLossRecord-1;%æ­¢æŸæˆªæ­¢æ—¥æœŸå‡1
             for i =1:4
                if ~isempty(order{i}.assetCode)
                    orderList=[orderList, order{i}];
@@ -80,7 +80,7 @@ classdef PairTradingStrategy < mclasses.strategy.LFBaseStrategy
             [~,orderCount] = size(orderList);
             delayList = ones(1,orderCount);
             obj.cutLossRecord = obj.cutLossRecord-1;
-            if (currDate==datenum(2020, 1,1 ))
+            if (currDate==datenum(2019, 12,31 ))
                 xlswrite('winCounter.xls',obj.winCounter);
                 xlswrite('lossCounter.xls',obj.lossCounter);
                 xlswrite('cutLossCounter.xls',obj.cutLossCounter);
@@ -117,25 +117,25 @@ classdef PairTradingStrategy < mclasses.strategy.LFBaseStrategy
                 stockPrice2 = aggregatedDataStruct.stock.properties.fwd_close(dateLoc, stock2);
                 pairPrice = stockPrice1-stockPrice2*obj.currPairList{1,i}.beta;
            
-                if (obj.currPairList{1,i}.PnL<-0.03) %Ö¹ËğÆ½²Ö
+                if (obj.currPairList{1,i}.PnL<-0.01) %æ­¢æŸå¹³ä»“
                     if obj.plotCounter>0
-                        obj.plotPair(obj.currPairList{1,i},'Ö¹Ëğ',currDate)
+                        obj.plotPair(obj.currPairList{1,i},'æ­¢æŸ',currDate)
                         obj.plotCounter = obj.plotCounter-1;
                     end
                     obj.cutLossCounter(x1, x2) =obj.cutLossCounter(x1, x2)+ 1;
-                    obj.cutLossRecord(x1, x2) =20;%20ÈÕÄÚ²»¿ª´Ëpair %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+                    obj.cutLossRecord(x1, x2) =20;%20æ—¥å†…ä¸å¼€æ­¤pair %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
                     sign=true;                  
                 end
                 
-%                 if (currentVal(x1, x2)<1)&&(obj.currPairList{1,i}.PnL>-0.05)% Ğ­Öú²»Âú×ã£¬Æ½²Ö
+%                 if (currentVal(x1, x2)<1)&&(obj.currPairList{1,i}.PnL>-0.05)% ååŠ©ä¸æ»¡è¶³ï¼Œå¹³ä»“
 %                     sign = true;
 %                     obj.cutLossRecord(x1, x2) =20;%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %                     obj.noValidation(x1, x2) =obj.noValidation(x1, x2)+ 1;
 %                 end
                 
-                if  ( pairPrice-obj.currPairList{1,i}.alpha )*obj.currPairList{1,i}.openZScore<0%Ö¹Ó¯            %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%;
+                if  ( pairPrice-obj.currPairList{1,i}.alpha )*obj.currPairList{1,i}.openZScore<0%æ­¢ç›ˆ            %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%;
                     if obj.plotCounter>0
-                        obj.plotPair(obj.currPairList{1,i},'Ö¹Ó¯',currDate)
+                        obj.plotPair(obj.currPairList{1,i},'æ­¢ç›ˆ',currDate)
                         obj.plotCounter = obj.plotCounter-1;
                     end
                     obj.stopWinCounter(x1, x2) = obj.stopWinCounter(x1, x2)+ 1;
@@ -149,8 +149,8 @@ classdef PairTradingStrategy < mclasses.strategy.LFBaseStrategy
                         obj.winCounter(x1, x2) =obj.winCounter(x1, x2)+ 1;
                     end
                     
-                    obj.existPair(x1,:)=0; %Æ½²Öºó°ÑÕâ¸öÎ»ÖÃÉè¶¨Îª0
-                    obj.existPair( : ,x2)=0; %Æ½²Öºó°ÑÕâ¸öÎ»ÖÃÉè¶¨Îª0
+                    obj.existPair(x1,:)=0; %å¹³ä»“åæŠŠè¿™ä¸ªä½ç½®è®¾å®šä¸º0
+                    obj.existPair( : ,x2)=0; %å¹³ä»“åæŠŠè¿™ä¸ªä½ç½®è®¾å®šä¸º0
                     stock1=obj.currPairList{1,i}.stock1;
                     stock2=obj.currPairList{1,i}.stock2;
                     windTickers1 = aggregatedDataStruct.stock.description.tickers.windTicker(stock1);
@@ -158,7 +158,7 @@ classdef PairTradingStrategy < mclasses.strategy.LFBaseStrategy
                     
                     if obj.currPairList{1,i}.stock1Position<0
                         longwindTicker{length(longwindTicker)+1} = windTickers1{1};
-                        longQuant = [longQuant,0];%Æ½²ÖÊ±°ÑÄ¿±ê²ÖÎ»Éè¶¨Îª0
+                        longQuant = [longQuant,0];%å¹³ä»“æ—¶æŠŠç›®æ ‡ä»“ä½è®¾å®šä¸º0
                     else
                         shortwindTicker{length(shortwindTicker)+1} = windTickers1{1};
                         shortQuant = [shortQuant,0];
@@ -172,7 +172,7 @@ classdef PairTradingStrategy < mclasses.strategy.LFBaseStrategy
                         shortQuant = [shortQuant,0];
                     end        
                else
-               newList{1,length(newList)+1} =  obj.currPairList{1,i}; %Èç¹ûÃ»ÓĞÆ½²Ö£¬Ôò¼ÇÂ¼ÏÂÀ´
+               newList{1,length(newList)+1} =  obj.currPairList{1,i}; %å¦‚æœæ²¡æœ‰å¹³ä»“ï¼Œåˆ™è®°å½•ä¸‹æ¥
                end            
            end
            obj.currPairList=newList;   
@@ -212,13 +212,13 @@ classdef PairTradingStrategy < mclasses.strategy.LFBaseStrategy
 
         % Writer : Li Fangwen 
         % Date: 2020/06/06
-        % µÚ¶ş´ÎĞŞ¸Äºó½á¹û
-        % code review£ºÉòÍ¢Íş
+        % ç¬¬äºŒæ¬¡ä¿®æ”¹åç»“æœ
+        % code reviewï¼šæ²ˆå»·å¨
         %%
 
         function  [buyOrderList,sellOrderList] = updateCurrPairList(obj,currDate)
             dateLoc = find( [obj.signals.dateList{:,1}]== currDate );
-             % ·Ö±ğÕÒµ½expectedReturn£¬validity£¬zscoreºÍbetaÔÚpropertyNameListÖĞ¶ÔÓ¦µÄË÷Òı
+             % åˆ†åˆ«æ‰¾åˆ°expectedReturnï¼Œvalidityï¼Œzscoreå’Œbetaåœ¨propertyNameListä¸­å¯¹åº”çš„ç´¢å¼•
             returnIndex = find(ismember(obj.signals.propertyNameList, 'expectedReturn'));
             validityIndex = find(ismember(obj.signals.propertyNameList, 'validity'));
             zscoreIndex = find(ismember(obj.signals.propertyNameList, 'zScore'));
@@ -227,13 +227,13 @@ classdef PairTradingStrategy < mclasses.strategy.LFBaseStrategy
             sigmaIndex= find(ismember(obj.signals.propertyNameList, 'sigma'));
             openIndex =  find(ismember(obj.signals.propertyNameList, 'open'));
             
-            % ·Ö±ğÕÒµ½²»Í¬pair ¶ÔÓ¦µÄexpectedReturn£¬validity£¬zscore£¬·µ»ØµÄ½á¹û¶¼ÊÇµÄ¶şÎ¬¾ØÕó
+            % åˆ†åˆ«æ‰¾åˆ°ä¸åŒpair å¯¹åº”çš„expectedReturnï¼Œvalidityï¼Œzscoreï¼Œè¿”å›çš„ç»“æœéƒ½æ˜¯çš„äºŒç»´çŸ©é˜µ
             currentExpect = obj.signals.signalParameters(:,:,end,1,1,returnIndex);
             currentVal = obj.signals.signalParameters(:,:,end,1,1,validityIndex);    
             currentOpen =  obj.signals.signalParameters(:,:,end,1,1,openIndex);
             
-            %ÒòÎªÃ»ÓĞÍ¨¹ı¼ìÑépair¶ÔÓ¦µÄ½á¹û¶¼ÊÇ0£¬ÕâÀïÎÒÃÇÓÃÃ¿¸öpairµÄvalidity£¬³ËÊÇ·ñzscore´óÓÚ2µÄÂß¼­ÅĞ¶Ï£¬µÃµ½·ûºÏ±ê×¼µÄ½»Ò×pair£¬
-            %È»ºóÕâ¸ö¾ØÕó³ËÒÔexpectReturn£¬µÃµ½Âú×ã½»Ò×±ê×¼µÄpairµÄexpectReturn
+            %å› ä¸ºæ²¡æœ‰é€šè¿‡æ£€éªŒpairå¯¹åº”çš„ç»“æœéƒ½æ˜¯0ï¼Œè¿™é‡Œæˆ‘ä»¬ç”¨æ¯ä¸ªpairçš„validityï¼Œä¹˜æ˜¯å¦zscoreå¤§äº2çš„é€»è¾‘åˆ¤æ–­ï¼Œå¾—åˆ°ç¬¦åˆæ ‡å‡†çš„äº¤æ˜“pairï¼Œ
+            %ç„¶åè¿™ä¸ªçŸ©é˜µä¹˜ä»¥expectReturnï¼Œå¾—åˆ°æ»¡è¶³äº¤æ˜“æ ‡å‡†çš„pairçš„expectReturn
             avaliableExpect = currentVal.*currentExpect.*currentOpen.*(~obj.existPair ).*(obj.cutLossRecord<0);%.*tril(currentExpect);%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
             longwindTicker={};
             longQuant = [];
@@ -241,61 +241,61 @@ classdef PairTradingStrategy < mclasses.strategy.LFBaseStrategy
             shortQuant = [];
             listLongth = length(obj.currPairList);
             waitLong={};
-            %Õâ²¿·ÖµÄËã·¨Ë¼ÏëÊÇ´Ó´óµ½Ğ¡ÕÒavaliableExpectÖĞ×î´óµÄ10¸ö£¬ºÍcurrPairList½øĞĞ±È½Ï¿´ÊÇ·ñ¼ÓÈë¡£Ã¿´Î¶¼ÕÒ×î´óµÄÒ»¸ö£¬±È½Ï¼ÆËãÍê³Éºó£¬°ÑËûµÄexpectreturn±ä³É0£¬·ÀÖ¹ÏÂ´ÎÔÙ´Î±»Ñ¡µ½¡£
-            for i= 1:10
+            %è¿™éƒ¨åˆ†çš„ç®—æ³•æ€æƒ³æ˜¯ä»å¤§åˆ°å°æ‰¾avaliableExpectä¸­æœ€å¤§çš„10ä¸ªï¼Œå’ŒcurrPairListè¿›è¡Œæ¯”è¾ƒçœ‹æ˜¯å¦åŠ å…¥ã€‚æ¯æ¬¡éƒ½æ‰¾æœ€å¤§çš„ä¸€ä¸ªï¼Œæ¯”è¾ƒè®¡ç®—å®Œæˆåï¼ŒæŠŠä»–çš„expectreturnå˜æˆ0ï¼Œé˜²æ­¢ä¸‹æ¬¡å†æ¬¡è¢«é€‰åˆ°ã€‚
+            for i= 1:5
                 maxData = max(max(avaliableExpect)); 
-                [x,y] = find(avaliableExpect== maxData);%x,yÊÇ¶ÔÓ¦µÄ×î´óexpectReturnµÄpair
-                % ÉòÍ¢Íş2020/06/04:ÄãÕâÀïÃ¿´ÎÑ­»·ÄÃµ½µÄx,yÊÇÍ¬Ò»¸ö°É£¬ÓĞµãÆæ¹Ö
-                % Àî·½ÎÅ2020/06/06:ÒÑ¾­ĞŞ¸Ä£¬Ö®Ç°ÍüÁË°ÑÕÒ¹ıµÄpairµÄexpectreturn×ª»¯ÎªÁã£¬ÒÑĞŞ¸Ä        
+                [x,y] = find(avaliableExpect== maxData);%x,yæ˜¯å¯¹åº”çš„æœ€å¤§expectReturnçš„pair
+                % æ²ˆå»·å¨2020/06/04:ä½ è¿™é‡Œæ¯æ¬¡å¾ªç¯æ‹¿åˆ°çš„x,yæ˜¯åŒä¸€ä¸ªå§ï¼Œæœ‰ç‚¹å¥‡æ€ª
+                % ææ–¹é—»2020/06/06:å·²ç»ä¿®æ”¹ï¼Œä¹‹å‰å¿˜äº†æŠŠæ‰¾è¿‡çš„pairçš„expectreturnè½¬åŒ–ä¸ºé›¶ï¼Œå·²ä¿®æ”¹        
                 if maxData>0
                     stock1 = obj.signals.stockLocation(x);
-                    stock2 =obj.signals.stockLocation(y);%µÃµ½¹ÉÆ±ÔÚÊı¾İ¿âÖĞµÄË÷Òı
+                    stock2 =obj.signals.stockLocation(y);%å¾—åˆ°è‚¡ç¥¨åœ¨æ•°æ®åº“ä¸­çš„ç´¢å¼•
 
-                    %ÕâÀïÄ¿Ç°²¢²»ÊÇÕæµÄÍ·´ç£¬Ö»ÊÇ±£´æÁË¸ù¾İzscoreÅĞ¶ÏµÄÂòÂô·½Ïò£¬zscore´óÓÚ0£¬×ö¿Õ£¬zscoreĞ¡ÓÚ0£¬×ö¶à
+                    %è¿™é‡Œç›®å‰å¹¶ä¸æ˜¯çœŸçš„å¤´å¯¸ï¼Œåªæ˜¯ä¿å­˜äº†æ ¹æ®zscoreåˆ¤æ–­çš„ä¹°å–æ–¹å‘ï¼Œzscoreå¤§äº0ï¼Œåšç©ºï¼Œzscoreå°äº0ï¼Œåšå¤š
                     stock1Position = -obj.signals.signalParameters(x,y,end,1,1,zscoreIndex)/abs(obj.signals.signalParameters(x,y,end,1,1,zscoreIndex));
                     stock2Position = obj.signals.signalParameters(x,y,end,1,1,betaIndex)/abs(obj.signals.signalParameters(x,y,end,1,1,betaIndex))*...
                         obj.signals.signalParameters(x,y,end,1,1,zscoreIndex)/abs(obj.signals.signalParameters(x,y,end,1,1,zscoreIndex)); 
 
-                    openCost = 0;%ÕâÀïÏÈ²»¼ÆËã£¬Ö®ºóÔÙ¼ÆËã
+                    openCost = 0;%è¿™é‡Œå…ˆä¸è®¡ç®—ï¼Œä¹‹åå†è®¡ç®—
                     openZScore = obj.signals.signalParameters(x,y,end,1,1,zscoreIndex);
                     PnL = 0;
-                    openDate = obj.signals.dateList{dateLoc+1,1};%µÚ¶şÌì¿ªÅÌ¿ª²Ö
+                    openDate = obj.signals.dateList{dateLoc+1,1};%ç¬¬äºŒå¤©å¼€ç›˜å¼€ä»“
                     beta = obj.signals.signalParameters(x,y,end,1,1,betaIndex);
                     alpha = obj.signals.signalParameters(x,y,end,1,1,alphaIndex);
                     sigma = obj.signals.signalParameters(x,y,end,1,1,sigmaIndex);
                     newStruct = struct('stock1',stock1,'stock2',stock2,'stock1Position',stock1Position,'stock2Position',...
                     stock2Position,'openCost',openCost,'openZScore',openZScore,'PnL',PnL,'openDate',openDate,'expectReturn',maxData, 'beta',beta,'alpha',alpha ,'sigma',sigma);
-                    obj.orderSort();%ÏÈÅÅĞò£¬ÔÙ±È½Ï£¬expectReturn´ÓĞ¡µ½´óÅÅÁĞ
-                    % ÉòÍ¢Íş2020/06/04:Õâ¸öÓï·¨²»Ì«¶Ô°¡£¬orderSort()Ö»ÄÜÓÉÕâ¸öÀàµÄ¶ÔÏóÀ´µ÷ÓÃ£¬²»ÄÜÓÃcurrPairListÖ±½Óµ÷ÓÃ£¬Ëû¾ÍÊÇÒ»¸ö³ÉÔ±±äÁ¿£¬Ò»¸öcell£¬Ó¦¸ÃÊÇobj.orderSort()°É
-                    % Àî·½ÎÅ2020/06/06:ÒÑ¾­°´ÕÕÌáÊ¾ĞŞ¸Ä
+                    obj.orderSort();%å…ˆæ’åºï¼Œå†æ¯”è¾ƒï¼ŒexpectReturnä»å°åˆ°å¤§æ’åˆ—
+                    % æ²ˆå»·å¨2020/06/04:è¿™ä¸ªè¯­æ³•ä¸å¤ªå¯¹å•Šï¼ŒorderSort()åªèƒ½ç”±è¿™ä¸ªç±»çš„å¯¹è±¡æ¥è°ƒç”¨ï¼Œä¸èƒ½ç”¨currPairListç›´æ¥è°ƒç”¨ï¼Œä»–å°±æ˜¯ä¸€ä¸ªæˆå‘˜å˜é‡ï¼Œä¸€ä¸ªcellï¼Œåº”è¯¥æ˜¯obj.orderSort()å§
+                    % ææ–¹é—»2020/06/06:å·²ç»æŒ‰ç…§æç¤ºä¿®æ”¹
                     
-                    if listLongth <10%Èç¹ûcurrPairList³¤¶ÈĞ¡ÓÚ10£¬Ö±½Ó¿ª²Ö¹ºÂò×éºÏ
-                        waitLong{1,length(waitLong)+1} = newStruct;%ÓÃÀ´´æ·Å½«ÒªopenµÄpair£¬ÕâÀïÖ»ÊÇ¼ÇÏÂ£¬»¹Ã»ÓĞ¿ª
+                    if listLongth <5%å¦‚æœcurrPairListé•¿åº¦å°äº10ï¼Œç›´æ¥å¼€ä»“è´­ä¹°ç»„åˆ
+                        waitLong{1,length(waitLong)+1} = newStruct;%ç”¨æ¥å­˜æ”¾å°†è¦opençš„pairï¼Œè¿™é‡Œåªæ˜¯è®°ä¸‹ï¼Œè¿˜æ²¡æœ‰å¼€
                         listLongth = listLongth +1;
                     else
                         if newStruct.expectReturn > obj.currPairList{1,1}.expectReturn
                             if obj.plotCounter>0
-                                obj.plotPair(obj.currPairList{1,1},'»»²Ö',currDate)
+                                obj.plotPair(obj.currPairList{1,1},'æ¢ä»“',currDate)
                                 obj.plotCounter = obj.plotCounter-1;
                             end
                             [longwindTicker,longQuant,shortwindTicker,shortQuant] = obj.closePair(obj.currPairList{1,1},longwindTicker,longQuant,shortwindTicker,shortQuant,currDate);
                             obj.exchangeStopCounter(x,y) = obj.exchangeStopCounter(x,y)+1;
-                            waitLong{1,length(waitLong)+1} = newStruct;%ÓÃÀ´´æ·Å½«ÒªopenµÄpair
-                            %ÒòÎªÕâ¸öÊ±ºòlistlongth=10£¬²»ĞèÒªÔö¼ÓlistLongth,½ö½öÊÇÌæ»»
+                            waitLong{1,length(waitLong)+1} = newStruct;%ç”¨æ¥å­˜æ”¾å°†è¦opençš„pair
+                            %å› ä¸ºè¿™ä¸ªæ—¶å€™listlongth=10ï¼Œä¸éœ€è¦å¢åŠ listLongth,ä»…ä»…æ˜¯æ›¿æ¢
                         end
                     end
                     avaliableExpect(x,:) = 0;
-                    avaliableExpect(:,y) = 0;%Ò»ÌìÄÚÍ¬Ò»µÄ¹ÉÆ±Ö»¿ªÒ»´Î
+                    avaliableExpect(:,y) = 0;%ä¸€å¤©å†…åŒä¸€çš„è‚¡ç¥¨åªå¼€ä¸€æ¬¡
                 else
                     break;
                 end
             end
-            % Õâ¸öÊ±ºòcurrPairÀïÃæ°ÑĞèÒªcloseµÄpair¶¼closeÁË£¬µ«ÊÇĞèÒªopenµÄpair»¹Ã»ÓĞ¼ÓÈë
-           % everyCash = 0.7*cashAvailable/(10-length(obj.currPairList));%Ã¿·İÍ¶×Ê¿ÉÓÃ×Ê½ğ%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-            everyCash = 0.8*obj.calNetWorth(currDate)/10;
+            % è¿™ä¸ªæ—¶å€™currPairé‡Œé¢æŠŠéœ€è¦closeçš„pairéƒ½closeäº†ï¼Œä½†æ˜¯éœ€è¦opençš„pairè¿˜æ²¡æœ‰åŠ å…¥
+           % everyCash = 0.7*cashAvailable/(10-length(obj.currPairList));%æ¯ä»½æŠ•èµ„å¯ç”¨èµ„é‡‘%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+            everyCash = 0.8*obj.calNetWorth(currDate)/5;
             
             for i = 1:length(waitLong)
-                 [longwindTicker,longQuant,shortwindTicker,shortQuant] = obj.openPair(waitLong{1,i},longwindTicker,longQuant,shortwindTicker,shortQuant,currDate,everyCash);%¿ª²Ö²Ù×÷
+                 [longwindTicker,longQuant,shortwindTicker,shortQuant] = obj.openPair(waitLong{1,i},longwindTicker,longQuant,shortwindTicker,shortQuant,currDate,everyCash);%å¼€ä»“æ“ä½œ
             end
                    
             buyOrderList.operate = mclasses.asset.BaseAsset.ADJUST_LONG;
@@ -319,8 +319,8 @@ classdef PairTradingStrategy < mclasses.strategy.LFBaseStrategy
                 for i = 1:len
                     for j =1:len-1
                         if obj.currPairList{1,j}.expectReturn > obj.currPairList{1,j+1}.expectReturn
-                             % ÉòÍ¢Íş2020/06/04:ÄãÕâ±ßÊÇÏë×öÃ°ÅİÅÅĞò°É£¬µ«ÊÇÎÒ²»ÊÇºÜÃ÷°×currPairList{1,j}µ÷ÓÃµÄÊÇÉ¶£¬°´ÕÕÉè¼Æ£¬Ó¦¸ÃÖ»ĞèÒªÒ»¸öÏÂ±ê¿ÉÒÔÁË
-                             % Àî·½ÎÅ2020/06/06:ÏµÍ³Ä¬ÈÏÊÇÒ»Î¬ÏòÁ¿£¬ÕâÀïÓÃÒ»¸öºÍÁ½¸ö¶¼Ò»Ñù£¬Ï°¹ßÓÃÁ½¸ö
+                             % æ²ˆå»·å¨2020/06/04:ä½ è¿™è¾¹æ˜¯æƒ³åšå†’æ³¡æ’åºå§ï¼Œä½†æ˜¯æˆ‘ä¸æ˜¯å¾ˆæ˜ç™½currPairList{1,j}è°ƒç”¨çš„æ˜¯å•¥ï¼ŒæŒ‰ç…§è®¾è®¡ï¼Œåº”è¯¥åªéœ€è¦ä¸€ä¸ªä¸‹æ ‡å¯ä»¥äº†
+                             % ææ–¹é—»2020/06/06:ç³»ç»Ÿé»˜è®¤æ˜¯ä¸€ç»´å‘é‡ï¼Œè¿™é‡Œç”¨ä¸€ä¸ªå’Œä¸¤ä¸ªéƒ½ä¸€æ ·ï¼Œä¹ æƒ¯ç”¨ä¸¤ä¸ª
                             tools = obj.currPairList{1,j+1};
                             obj.currPairList{1,j+1} = obj.currPairList{1,j};
                             obj.currPairList{1,j} = tools;
@@ -340,42 +340,42 @@ classdef PairTradingStrategy < mclasses.strategy.LFBaseStrategy
             obj.existPair(x1,:)=1;
             obj.existPair(:,x2)=1;
             windTickers1 = aggregatedDataStruct.stock.description.tickers.windTicker(newStruct.stock1);
-            windTickers2 = aggregatedDataStruct.stock.description.tickers.windTicker(newStruct.stock2);%wind¹ÉÆ±´úÂë
+            windTickers2 = aggregatedDataStruct.stock.description.tickers.windTicker(newStruct.stock2);%windè‚¡ç¥¨ä»£ç 
 
             fwdPrice1 = aggregatedDataStruct.stock.properties.fwd_close(dateLoc, newStruct.stock1);
-            fwdPrice2 = aggregatedDataStruct.stock.properties.fwd_close(dateLoc, newStruct.stock2);%¸´È¨¼Û¸ñ£¬ÓÃÀ´¾ö¶¨×Ê½ğ·ÖÅä
+            fwdPrice2 = aggregatedDataStruct.stock.properties.fwd_close(dateLoc, newStruct.stock2);%å¤æƒä»·æ ¼ï¼Œç”¨æ¥å†³å®šèµ„é‡‘åˆ†é…
 
             realPrice1 = aggregatedDataStruct.stock.properties.close(dateLoc, newStruct.stock1);
-            realPrice2 = aggregatedDataStruct.stock.properties.close(dateLoc, newStruct.stock2);%ÓÃÕæÊµ¹É¼Û¼Û¸ñÓÃÀ´¾ö¶¨ÕæÊµÍ·´ç
-            % ÉòÍ¢Íş2020/06/04:ÕâÒ»²½±ğÕâÃ´¸É£¬ËãÊÇµ÷ÓÃÎ´À´Êı¾İÁË¡£»¹ÊÇclose(dateLoc£¬newStruct.stock2)°É 
-            % Àî·½ÎÅ2020/06/06:ÒÑ¾­ĞŞ¸Ä
+            realPrice2 = aggregatedDataStruct.stock.properties.close(dateLoc, newStruct.stock2);%ç”¨çœŸå®è‚¡ä»·ä»·æ ¼ç”¨æ¥å†³å®šçœŸå®å¤´å¯¸
+            % æ²ˆå»·å¨2020/06/04:è¿™ä¸€æ­¥åˆ«è¿™ä¹ˆå¹²ï¼Œç®—æ˜¯è°ƒç”¨æœªæ¥æ•°æ®äº†ã€‚è¿˜æ˜¯close(dateLocï¼ŒnewStruct.stock2)å§ 
+            % ææ–¹é—»2020/06/06:å·²ç»ä¿®æ”¹
 
-            cashFor1 = (1*fwdPrice1)/(1*fwdPrice1+abs(newStruct.beta)*fwdPrice2)*everyCash;%¼ÆËã³ö×Ê½ğ·ÖÅä,±ÈÀıÎª1£ºbeta
+            cashFor1 = (1*fwdPrice1)/(1*fwdPrice1+abs(newStruct.beta)*fwdPrice2)*everyCash;%è®¡ç®—å‡ºèµ„é‡‘åˆ†é…,æ¯”ä¾‹ä¸º1ï¼šbeta
             cashFor2 = (abs(newStruct.beta)*fwdPrice2)/(1*fwdPrice1+abs(newStruct.beta)*fwdPrice2)*everyCash;
  
              costPrice1 = aggregatedDataStruct.stock.properties.open(dateLoc+1, newStruct.stock1);
-             costPrice2 = aggregatedDataStruct.stock.properties.open(dateLoc+1, newStruct.stock2);%ÓÃµÚ¶şÌìµÄ¿ªÅÌ¼Û¸ñÀ´¼ÆËã½»Ò×³É±¾
+             costPrice2 = aggregatedDataStruct.stock.properties.open(dateLoc+1, newStruct.stock2);%ç”¨ç¬¬äºŒå¤©çš„å¼€ç›˜ä»·æ ¼æ¥è®¡ç®—äº¤æ˜“æˆæœ¬
              realstock1Position = floor(cashFor1/costPrice1/100)*100*newStruct.stock1Position;
-             realstock2Position = floor(cashFor2/costPrice2/100)*100*newStruct.stock2Position;%½»Ò×Íê³ÉºóµÄÍ·´ç
+             realstock2Position = floor(cashFor2/costPrice2/100)*100*newStruct.stock2Position;%äº¤æ˜“å®Œæˆåçš„å¤´å¯¸
 
             newStruct.stock1Position = floor(cashFor1/realPrice1/100)*100*newStruct.stock1Position;
-            newStruct.stock2Position = floor(cashFor2/realPrice2/100)*100*newStruct.stock2Position;%¶©µ¥Í·´ç
-            % ÉòÍ¢Íş2020/06/04:Õâ²¿·ÖÉæ¼°µ½Î´À´Êı¾İ£¬²¢×÷Îª½»Ò×Ö¸µ¼£¬²»ÔÊĞí 
-            % Àî·½ÎÅ2020/06/06:ÒÑ¾­ĞŞ¸Ä
+            newStruct.stock2Position = floor(cashFor2/realPrice2/100)*100*newStruct.stock2Position;%è®¢å•å¤´å¯¸
+            % æ²ˆå»·å¨2020/06/04:è¿™éƒ¨åˆ†æ¶‰åŠåˆ°æœªæ¥æ•°æ®ï¼Œå¹¶ä½œä¸ºäº¤æ˜“æŒ‡å¯¼ï¼Œä¸å…è®¸ 
+            % ææ–¹é—»2020/06/06:å·²ç»ä¿®æ”¹
 
 
-            newStruct.openCost = (abs(realstock1Position)*costPrice1+abs(realstock2Position)*costPrice2)*2/10000;%ÊÖĞø·ÑÉè¶¨ÎªÍò·ÖÖ®¶ş
-            % ÉòÍ¢Íş2020/06/04:Õâ²¿·ÖËäÈ»Éæ¼°µ½Î´À´Êı¾İ£¬µ«²¢²»×÷Îª½»Ò×Ö¸µ¼£¬½ö½ö×÷Îª¼ÇÂ¼£¬²»Ìá³«£¬µ«¿ÉÒÔÔÊĞí 
-            % Àî·½ÎÅ2020/06/06:ÒÑ¾­ĞŞ¸Ä
-            % ÉòÍ¢Íş2020/06/05:Õâ²¿·ÖÕÕÄãÏÖÔÚµÄĞŞ¸Ä·½Ê½¾Í²»ÊÇÕæÊµµÄopenCostÁË£¬Òª²»Äã¾ÍÌáÇ°ÄÃÒ»ÏÂÃ÷ÌìopenµÄ¼Û¸ñ£¬Òª²»µ±ÈÕ¾ÍÏÈÖÃÎª0£¬ÔÚµÚ¶şÌìÔÙÌí¼Ó
-            % Àî·½ÎÅ2020/06/06:ÒÑ¾­ĞŞ¸ÄÎªÓÃ¿ªÅÌ¼Û¼ÆËãµÄcost
+            newStruct.openCost = (abs(realstock1Position)*costPrice1+abs(realstock2Position)*costPrice2)*2/10000;%æ‰‹ç»­è´¹è®¾å®šä¸ºä¸‡åˆ†ä¹‹äºŒ
+            % æ²ˆå»·å¨2020/06/04:è¿™éƒ¨åˆ†è™½ç„¶æ¶‰åŠåˆ°æœªæ¥æ•°æ®ï¼Œä½†å¹¶ä¸ä½œä¸ºäº¤æ˜“æŒ‡å¯¼ï¼Œä»…ä»…ä½œä¸ºè®°å½•ï¼Œä¸æå€¡ï¼Œä½†å¯ä»¥å…è®¸ 
+            % ææ–¹é—»2020/06/06:å·²ç»ä¿®æ”¹
+            % æ²ˆå»·å¨2020/06/05:è¿™éƒ¨åˆ†ç…§ä½ ç°åœ¨çš„ä¿®æ”¹æ–¹å¼å°±ä¸æ˜¯çœŸå®çš„openCostäº†ï¼Œè¦ä¸ä½ å°±æå‰æ‹¿ä¸€ä¸‹æ˜å¤©opençš„ä»·æ ¼ï¼Œè¦ä¸å½“æ—¥å°±å…ˆç½®ä¸º0ï¼Œåœ¨ç¬¬äºŒå¤©å†æ·»åŠ 
+            % ææ–¹é—»2020/06/06:å·²ç»ä¿®æ”¹ä¸ºç”¨å¼€ç›˜ä»·è®¡ç®—çš„cost
 
             if newStruct.stock1Position>0
                 longwindTicker{length(longwindTicker)+1} = windTickers1{1};
                 longQuant = [longQuant, newStruct.stock1Position];
             else
                 shortwindTicker{length(shortwindTicker)+1} = windTickers1{1};
-                shortQuant = [shortQuant,-newStruct.stock1Position]; %ÕâÀï¶¼Òª±£´æ³ÉÕıÊı
+                shortQuant = [shortQuant,-newStruct.stock1Position]; %è¿™é‡Œéƒ½è¦ä¿å­˜æˆæ­£æ•°
 
             end
 
@@ -400,13 +400,13 @@ classdef PairTradingStrategy < mclasses.strategy.LFBaseStrategy
              obj.existPair(:,x2)=0;
              aggregatedDataStruct = obj.marketData.aggregatedDataStruct;
 
-            % ÉòÍ¢Íş2020/06/05:Ã¿´ÎÆ½²ÖÊ±¶¼Òª¶ÔÆ½²Ö¼ÆÊıÆ÷winCounter»òlossCounter½øĞĞ+1²Ù×÷£¬ÇëÅĞ¶Ï¾ö¶¨Æ½²ÖÊ±£¬µÚ¶şÌìµÄÂô³ö¼Û¸ñÏà¶ÔÓÚ¿ª²Ö³É±¾µ½µ×ÊÇÊÕÒæ»¹ÊÇËğÊ§¡£´Ë´¦½öÎªÍ³¼ÆÊ¹ÓÃ£¬¹Ê¿ÉÊ¹ÓÃÎ´À´Êı¾İ
-            % Õâ²¿·Ö¿ÉÒÔ°´ÕÕpptÖĞÏÔÊ¾¹ıµÄ£¬ĞÂÔöÒ»¸öcell¶ÔÏó£¬¶ÔÔÚÃ¿´ÎÆ½²ÖÊ±½ö´æ´¢Æ½²ÖµÄ¹ÉÆ±£¬¿ª²ÖÈÕÆÚ£¬Æ½²ÖÈÕÆÚ£¬Æ½²ÖÔ­ÒòµÈĞÅÏ¢£¬ºóĞø¼¯ÖĞ¶ÔÕâ¸öÊı¾İ½øĞĞÍ³¼Æ·ÖÎö¡£¿ÉÏ¸»¯¡£
-            % Àî·½ÎÅ2020/06/06:ÒÑ¾­ĞŞ¸Ä£¬Ï¸»¯²¿·ÖÔÚ¿ÉÄÜĞèÒªÖ®ºóºÍÇ°°ë²¿·ÖÍ¬Ñ§Ğ­ÉÌ¹²Í¬½â¾ö
+            % æ²ˆå»·å¨2020/06/05:æ¯æ¬¡å¹³ä»“æ—¶éƒ½è¦å¯¹å¹³ä»“è®¡æ•°å™¨winCounteræˆ–lossCounterè¿›è¡Œ+1æ“ä½œï¼Œè¯·åˆ¤æ–­å†³å®šå¹³ä»“æ—¶ï¼Œç¬¬äºŒå¤©çš„å–å‡ºä»·æ ¼ç›¸å¯¹äºå¼€ä»“æˆæœ¬åˆ°åº•æ˜¯æ”¶ç›Šè¿˜æ˜¯æŸå¤±ã€‚æ­¤å¤„ä»…ä¸ºç»Ÿè®¡ä½¿ç”¨ï¼Œæ•…å¯ä½¿ç”¨æœªæ¥æ•°æ®
+            % è¿™éƒ¨åˆ†å¯ä»¥æŒ‰ç…§pptä¸­æ˜¾ç¤ºè¿‡çš„ï¼Œæ–°å¢ä¸€ä¸ªcellå¯¹è±¡ï¼Œå¯¹åœ¨æ¯æ¬¡å¹³ä»“æ—¶ä»…å­˜å‚¨å¹³ä»“çš„è‚¡ç¥¨ï¼Œå¼€ä»“æ—¥æœŸï¼Œå¹³ä»“æ—¥æœŸï¼Œå¹³ä»“åŸå› ç­‰ä¿¡æ¯ï¼Œåç»­é›†ä¸­å¯¹è¿™ä¸ªæ•°æ®è¿›è¡Œç»Ÿè®¡åˆ†æã€‚å¯ç»†åŒ–ã€‚
+            % ææ–¹é—»2020/06/06:å·²ç»ä¿®æ”¹ï¼Œç»†åŒ–éƒ¨åˆ†åœ¨å¯èƒ½éœ€è¦ä¹‹åå’Œå‰åŠéƒ¨åˆ†åŒå­¦åå•†å…±åŒè§£å†³
             windTickers1 = aggregatedDataStruct.stock.description.tickers.windTicker(closeStruct.stock1);
-            windTickers2 = aggregatedDataStruct.stock.description.tickers.windTicker(closeStruct.stock2);%µÃµ½wind¹ÉÆ±´úÂë
+            windTickers2 = aggregatedDataStruct.stock.description.tickers.windTicker(closeStruct.stock2);%å¾—åˆ°windè‚¡ç¥¨ä»£ç 
 
-            obj.currPairList = {obj.currPairList{2:end}} ; %É¾³ıµÚÒ»¸ö
+            obj.currPairList = {obj.currPairList{2:end}} ; %åˆ é™¤ç¬¬ä¸€ä¸ª
             
             if closeStruct.PnL>0
                 obj.stopWinCounter(x1,x2) =obj.stopWinCounter(x1,x2)+1;
@@ -416,7 +416,7 @@ classdef PairTradingStrategy < mclasses.strategy.LFBaseStrategy
             
             if closeStruct.stock1Position<0
                 longwindTicker{length(longwindTicker)+1} = windTickers1{1};
-                longQuant = [longQuant,0];%Æ½²ÖÊ±°ÑÄ¿±ê²ÖÎ»Éè¶¨Îª0
+                longQuant = [longQuant,0];%å¹³ä»“æ—¶æŠŠç›®æ ‡ä»“ä½è®¾å®šä¸º0
             else
                 shortwindTicker{length(shortwindTicker)+1} = windTickers1{1};
                 shortQuant = [shortQuant,0];
@@ -432,7 +432,7 @@ classdef PairTradingStrategy < mclasses.strategy.LFBaseStrategy
         end
         
         function plotPair(obj,pairStruct,closeCause,endDate)
-            stock1 = find(ismember(obj.signals.stockLocation,pairStruct.stock1)); %¹ÉÆ±index
+            stock1 = find(ismember(obj.signals.stockLocation,pairStruct.stock1)); %è‚¡ç¥¨index
             stock2 = find(ismember(obj.signals.stockLocation,pairStruct.stock2));
             aggregatedDataStruct = obj.marketData.aggregatedDataStruct;
             windTickers1 = aggregatedDataStruct.stock.description.tickers.windTicker(pairStruct.stock1);
@@ -440,10 +440,10 @@ classdef PairTradingStrategy < mclasses.strategy.LFBaseStrategy
             windName1 = aggregatedDataStruct.stock.description.tickers.shortName(pairStruct.stock1);
             windName2 = aggregatedDataStruct.stock.description.tickers.shortName(pairStruct.stock2);
             
-            stockTicker1 =  windTickers1{1}; %stock1½»Ò×´úÂë
-            stockTicker2 =  windTickers2{1}; %stock2½»Ò×´úÂë
-            stockName1 = windName1{1}; %stock1¼ò³Æ
-            stockName2 = windName2{1}; %stock2¼ò³Æ
+            stockTicker1 =  windTickers1{1}; %stock1äº¤æ˜“ä»£ç 
+            stockTicker2 =  windTickers2{1}; %stock2äº¤æ˜“ä»£ç 
+            stockName1 = windName1{1}; %stock1ç®€ç§°
+            stockName2 = windName2{1}; %stock2ç®€ç§°
             
             startDate=pairStruct.openDate;
             
@@ -455,7 +455,7 @@ classdef PairTradingStrategy < mclasses.strategy.LFBaseStrategy
             %sigmaIndex = find(ismember(obj.signals.propertyNameList, 'sigma'));
             %dislocationIndex = find(ismember(obj.signals.propertyNameList, 'dislocation'));
             
-            extend_length=3; %startDateÓëendDateÍùÇ°ºóÑÓ³¤¼¸Ìì£¬·½±ã»­Í¼
+            extend_length=3; %startDateä¸endDateå¾€å‰åå»¶é•¿å‡ å¤©ï¼Œæ–¹ä¾¿ç”»å›¾
             startDateIndex = find( [obj.signals.dateList{:,1}]== startDate);
             startDateIndex_extend = startDateIndex-extend_length;
             endDateIndex = find( [obj.signals.dateList{:,1}]== endDate);
@@ -465,31 +465,31 @@ classdef PairTradingStrategy < mclasses.strategy.LFBaseStrategy
             
             %dislocation =  obj.signals.signalParameters(stock1,stock2,startDateIndex_extend:endDateIndex_extend,1,1,dislocationIndex);
             %Zscore =  obj.signals.signalParameters(stock1,stock2,startDateIndex_extend:endDateIndex_extend,1,1,zscoreIndex);
-            %beta_start = obj.signals.signalParameters(stock1,stock2,startDateIndex,1,1,betaIndex); %¿ª²ÖÊ±µÄbeta
-            %alpha_start = obj.signals.signalParameters(stock1,stock2,startDateIndex,1,1,alphaIndex); %¿ª²ÖÊ±µÄmean
-            %sigma_start = obj.signals.signalParameters(stock1,stock2,startDateIndex,1,1,sigmaIndex); %¿ª²ÖÊ±µÄsigma
-            %alpha_end = obj.signals.signalParameters(stock1,stock2,endDateIndex,1,1,alphaIndex); %¹Ø²ÖÊ±µÄmean
+            %beta_start = obj.signals.signalParameters(stock1,stock2,startDateIndex,1,1,betaIndex); %å¼€ä»“æ—¶çš„beta
+            %alpha_start = obj.signals.signalParameters(stock1,stock2,startDateIndex,1,1,alphaIndex); %å¼€ä»“æ—¶çš„mean
+            %sigma_start = obj.signals.signalParameters(stock1,stock2,startDateIndex,1,1,sigmaIndex); %å¼€ä»“æ—¶çš„sigma
+            %alpha_end = obj.signals.signalParameters(stock1,stock2,endDateIndex,1,1,alphaIndex); %å…³ä»“æ—¶çš„mean
             beta_start=pairStruct.beta;
             alpha_start=pairStruct.alpha;
             sigma_start=pairStruct.sigma;
             
             fwdPrice1 = aggregatedDataStruct.stock.properties.fwd_close(startDateIndex_extend:endDateIndex_extend,pairStruct.stock1);
             fwdPrice2 = aggregatedDataStruct.stock.properties.fwd_close(startDateIndex_extend:endDateIndex_extend,pairStruct.stock2);
-            portfolio_value = fwdPrice1-beta_start*fwdPrice2; %Õâ¶ÔpairµÄ¹É¼ÛĞòÁĞ
+            portfolio_value = fwdPrice1-beta_start*fwdPrice2; %è¿™å¯¹pairçš„è‚¡ä»·åºåˆ—
             
-            upboundStart = alpha_start+2*sigma_start; %¿ª²ÖÊ±µÄÉÏ½ç
-            lowboundStart = alpha_start-2*sigma_start; %¿ª²ÖÊ±µÄÏÂ½ç
+            upboundStart = alpha_start+2*sigma_start; %å¼€ä»“æ—¶çš„ä¸Šç•Œ
+            lowboundStart = alpha_start-2*sigma_start; %å¼€ä»“æ—¶çš„ä¸‹ç•Œ
             
             
-            %ÏÂÃæÊÇ»­Í¼²¿·Ö
-            %»­Í¼²¿·Ö
+            %ä¸‹é¢æ˜¯ç”»å›¾éƒ¨åˆ†
+            %ç”»å›¾éƒ¨åˆ†
             figure
-            len=length(portfolio_value); %Êı×é³¤¶È
+            len=length(portfolio_value); %æ•°ç»„é•¿åº¦
             dateList=[obj.signals.dateList{:,1}];
-            xaxis=dateList(startDateIndex_extend:endDateIndex_extend); %Ê±¼ä×÷ÎªxÖá
-            plot(xaxis,portfolio_value,'Color','black') %»­³öpair¼Û¸ñ×ßÊÆ
+            xaxis=dateList(startDateIndex_extend:endDateIndex_extend); %æ—¶é—´ä½œä¸ºxè½´
+            plot(xaxis,portfolio_value,'Color','black') %ç”»å‡ºpairä»·æ ¼èµ°åŠ¿
             dateaxis('x',17)
-            %»­³ö¾ùÖµ¡¢ÉÏÏÂ½ç
+            %ç”»å‡ºå‡å€¼ã€ä¸Šä¸‹ç•Œ
             line([xaxis(1),xaxis(end)],[alpha_start,alpha_start],'linestyle','--','Color','red')
             text(xaxis(1)-1,alpha_start,'Mean(open)','Color','red')
             %line([startDate-extend_length,endDate+extend_length],[alpha_end,alpha_end],'linestyle','--','Color','blue')
@@ -500,13 +500,13 @@ classdef PairTradingStrategy < mclasses.strategy.LFBaseStrategy
             text(xaxis(1)-1,lowboundStart,'Lower Bound','Color','blue')
             plottitle1=['stock pair ','(',stockName1,',',stockName2,')',' price movement'];
             plottitle2=['reason for closing the pair: ',closeCause];
-            title({plottitle1;plottitle2}) %×¢Ã÷pair¼°Æ½²ÖÔ­Òò
+            title({plottitle1;plottitle2}) %æ³¨æ˜pairåŠå¹³ä»“åŸå› 
             
-            %×¢Ã÷¿ª²Ö¡¢Æ½²ÖÊ±¼ä
+            %æ³¨æ˜å¼€ä»“ã€å¹³ä»“æ—¶é—´
             ydata=get(gca,'YLim');
-            text(startDate,portfolio_value(extend_length+1),'*','color','r')
+            %text(startDate,portfolio_value(extend_length+1),'*','color','r')
             text(startDate,min(ydata),[datestr(startDate,'yyyy-mm-dd'),'open position'],'FontWeight','bold','Color','red','HorizontalAlignment','center')
-            text(endDate,portfolio_value(len-extend_length),'*','color','b')
+            %text(endDate,portfolio_value(len-extend_length),'*','color','b')
             text(endDate,min(ydata),[datestr(endDate,'yyyy-mm-dd'),'close position'],'FontWeight','bold','Color','blue','HorizontalAlignment','center')
             
             
