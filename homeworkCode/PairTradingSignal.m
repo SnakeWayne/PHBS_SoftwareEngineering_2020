@@ -1,4 +1,4 @@
-%??propertylist??ï¼?ç¬???ä¸???ä¸?sigmaï¼??¹ä¾¿è°???ï¼????¥ç??ä¹?ä¸?????openï¼??¤å???????°è¾¾å¼?ä»??¡ä»¶
+%??propertylist??锛?绗???涓???涓?sigma锛??逛究璋???锛????ョ??涔?涓?????open锛??ゅ???????拌揪寮?浠??′欢
 classdef PairTradingSignal < handle
     
     properties(Access = public)
@@ -28,8 +28,11 @@ classdef PairTradingSignal < handle
             %store stock prices into forwardPrices
             marketData = mclasses.staticMarketData.BasicMarketLoader.getInstance();
             generalData = marketData.getAggregatedDataStruct;
+            stockSectorFilter = generalData.stock.sectorClassification.levelOne == 4;
+            stockLocation1 = find(sum(stockSectorFilter) > 1);
             stockSectorFilter = generalData.stock.sectorClassification.levelOne == 31;
-            stockLocation = find(sum(stockSectorFilter) > 1);
+            stockLocation2 = find(sum(stockSectorFilter) > 1);
+            stockLocation = [stockLocation1,stockLocation2];
             obj.stockLocation = stockLocation;
             obj.stockNum = length(stockLocation);
             obj.forwardPrices = generalData.stock.properties.fwd_close(:, stockLocation);
@@ -54,21 +57,26 @@ classdef PairTradingSignal < handle
             for stock1 = 1:1:obj.stockNum-1
                 for stock2 = stock1+1:1:obj.stockNum
                     for dateLocation = obj.startDateLocation - obj.ws + 1:1:obj.startDateLocation - 1
-                        Y = obj.forwardPrices(dateLocation-obj.wr+1:dateLocation,stock1);
-                        X = obj.forwardPrices(dateLocation-obj.wr+1:dateLocation,stock2);
-                        %count the number of NaN in Y and X
-                        YNaNNum = sum(isnan(Y));
-                        XNaNNum = sum(isnan(X));
-                        Y_stat = tabulate(Y);
-                        X_stat = tabulate(X);
-                        %if there are NaNs in Y and X or prices of stock1 or stock2 didn't change for more than 20% time period, fill NaN into regression history
-                        if YNaNNum+XNaNNum >= 1 || max(Y_stat(:,3)) > 20|| max(X_stat(:,3)) > 20
+                        if (stock1<=42&&stock2<=42) || (stock1>42&&stock2>42)
+                            Y = obj.forwardPrices(dateLocation-obj.wr+1:dateLocation,stock1);
+                            X = obj.forwardPrices(dateLocation-obj.wr+1:dateLocation,stock2);
+                            %count the number of NaN in Y and X
+                            YNaNNum = sum(isnan(Y));
+                            XNaNNum = sum(isnan(X));
+                            Y_stat = tabulate(Y);
+                            X_stat = tabulate(X);
+                            %if there are NaNs in Y and X or prices of stock1 or stock2 didn't change for more than 20% time period, fill NaN into regression history
+                            if YNaNNum+XNaNNum >= 1 || max(Y_stat(:,3)) > 20|| max(X_stat(:,3)) > 20
+                                obj.regressionAlphaHistory(stock1,stock2,dateLocation) = NaN;
+                                obj.regressionBetaHistory(stock1,stock2,dateLocation) = NaN;
+                            else
+                                [b,~,~,~,~] = regress(Y,[ones(obj.wr,1), X]);
+                                obj.regressionAlphaHistory(stock1,stock2,dateLocation) = b(1);
+                                obj.regressionBetaHistory(stock1,stock2,dateLocation) = b(2);
+                            end
+                        else
                             obj.regressionAlphaHistory(stock1,stock2,dateLocation) = NaN;
                             obj.regressionBetaHistory(stock1,stock2,dateLocation) = NaN;
-                        else
-                            [b,~,~,~,~] = regress(Y,[ones(obj.wr,1), X]);
-                            obj.regressionAlphaHistory(stock1,stock2,dateLocation) = b(1);
-                            obj.regressionBetaHistory(stock1,stock2,dateLocation) = b(2);
                         end
                     end
                 end
@@ -109,10 +117,10 @@ classdef PairTradingSignal < handle
             obj.signalParameters(stock1,stock2,dateLocation,1,1,7) = alpha;
             obj.signalParameters(stock1,stock2,dateLocation,1,1,8) = beta;
             %calculate open condition
-            %halfLife<1,ä¸?å¼?ä»?ï¼?dislocation/cost<0.04%,ä¸?å¼?ä»?ï¼???2sigma??2.5sigmaä¹??´å?ä»?
+            %halfLife<1,涓?寮?浠?锛?dislocation/cost<0.04%,涓?寮?浠?锛???2sigma??2.5sigma涔??村?浠?
             if abs(dislocation)/tradingCost <= 0.0004
                 obj.signalParameters(stock1,stock2,dateLocation,1,1,9) = 0;
-            elseif abs(zScore) >= 2 
+            elseif abs(zScore) >= 2
                 obj.signalParameters(stock1,stock2,dateLocation,1,1,9) = 1;
             else
                 obj.signalParameters(stock1,stock2,dateLocation,1,1,9) = 0;
@@ -125,20 +133,25 @@ classdef PairTradingSignal < handle
             dateLocation = find(cell2mat(obj.dateList(:,1)) == dateCode);
             for stock1 = 1:1:obj.stockNum-1
                 for stock2 = stock1+1:1:obj.stockNum
-                    %calculate the current day's alpha and beta and store them into regression history
-                    Y = obj.forwardPrices(dateLocation-obj.wr+1:dateLocation,stock1);
-                    X = obj.forwardPrices(dateLocation-obj.wr+1:dateLocation,stock2);
-                    YNaNNum = sum(isnan(Y));
-                    XNaNNum = sum(isnan(X));
-                    Y_stat = tabulate(Y);
-                    X_stat = tabulate(X);
-                    if YNaNNum+XNaNNum >= 1 || max(Y_stat(:,3)) > 20 || max(X_stat(:,3)) > 20
+                    if (stock1<=42&&stock2<=42) || (stock1>42&&stock2>42)
+                        %calculate the current day's alpha and beta and store them into regression history
+                        Y = obj.forwardPrices(dateLocation-obj.wr+1:dateLocation,stock1);
+                        X = obj.forwardPrices(dateLocation-obj.wr+1:dateLocation,stock2);
+                        YNaNNum = sum(isnan(Y));
+                        XNaNNum = sum(isnan(X));
+                        Y_stat = tabulate(Y);
+                        X_stat = tabulate(X);
+                        if YNaNNum+XNaNNum >= 1 || max(Y_stat(:,3)) > 20 || max(X_stat(:,3)) > 20
+                            obj.regressionAlphaHistory(stock1,stock2,dateLocation) = NaN;
+                            obj.regressionBetaHistory(stock1,stock2,dateLocation) = NaN;
+                        else
+                            [b,~,~,~,~] = regress(Y,[ones(obj.wr,1), X]);
+                            obj.regressionAlphaHistory(stock1,stock2,dateLocation) = b(1);
+                            obj.regressionBetaHistory(stock1,stock2,dateLocation) = b(2); 
+                        end
+                    else
                         obj.regressionAlphaHistory(stock1,stock2,dateLocation) = NaN;
                         obj.regressionBetaHistory(stock1,stock2,dateLocation) = NaN;
-                    else
-                        [b,~,~,~,~] = regress(Y,[ones(obj.wr,1), X]);
-                        obj.regressionAlphaHistory(stock1,stock2,dateLocation) = b(1);
-                        obj.regressionBetaHistory(stock1,stock2,dateLocation) = b(2); 
                     end
                     alphaNaNNum = sum(isnan(obj.regressionAlphaHistory(stock1,stock2,dateLocation - obj.ws + 1:dateLocation)));
                     betaNaNNum = sum(isnan(obj.regressionBetaHistory(stock1,stock2,dateLocation - obj.ws + 1:dateLocation)));
@@ -147,7 +160,6 @@ classdef PairTradingSignal < handle
                     stockPrice2 = obj.forwardPrices(dateLocation - obj.ws + 1:dateLocation,stock2);
                     stock_stat1 = tabulate(stockPrice1);
                     stock_stat2 = tabulate(stockPrice2);
-                    %å¦????¡ä»·è¶?è¿?30%å¯?wsçª??£æ????ä¸???ï¼?è®¤ä¸º?°æ??????ï¼?
                     if alphaNaNNum+betaNaNNum >= 1 || max(stock_stat1(:,3)) > 30 || max(stock_stat2(:,3)) > 30
                         obj.signalParameters(stock1,stock2,dateLocation,1,1,:) = zeros(9,1);
                     else
@@ -155,11 +167,9 @@ classdef PairTradingSignal < handle
                         betaSeries = zeros(obj.ws,1);
                         alphaSeries(:,1) = obj.regressionAlphaHistory(stock1,stock2,dateLocation - obj.ws + 1:dateLocation);
                         betaSeries(:,1) = obj.regressionBetaHistory(stock1,stock2,dateLocation - obj.ws + 1:dateLocation);
-                        %å¯?beta??alpha??stabilityæ£?éª?ï¼??¹æ?ä¸ºå?¹å??1/3????1/3å¯¹å?????wilconxç§©å??æ£?éª?
                         wilNum = floor(obj.ws/2);
                         [~,h_alpha] = ranksum(alphaSeries(1:wilNum,1),alphaSeries(obj.ws-wilNum+1:obj.ws,1));
                         [~,h_beta] = ranksum(betaSeries(1:wilNum,1),betaSeries(obj.ws-wilNum+1:obj.ws,1));
-                        %å¦???alpha??betaæ³¢å?¨è?å¤§ï??????°å?¨é?¨ä?ä¸?0
                         if (h_alpha == 1) || (h_beta == 1)
                             obj.signalParameters(stock1,stock2,dateLocation,1,1,:) = zeros(9,1);
                         else
